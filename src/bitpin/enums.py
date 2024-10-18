@@ -194,3 +194,10 @@ class RequestMethod(str, Enum):
     POST = "post"
     PUT = "put"
     DELETE = "delete"
+
+
+class OrderBookQuoteAsset(str, Enum):
+    """Order Book Quote Assets"""
+
+    USDT = "USDT"
+    IRT = "IRT"

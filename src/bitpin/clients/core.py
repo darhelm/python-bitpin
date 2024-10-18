@@ -21,13 +21,16 @@ class CoreClient(ABC):  # pylint: disable=too-many-instance-attributes
     LOGIN_URL = "usr/api/login/"
     REFRESH_TOKEN_URL = "usr/refresh_token/"
     USER_INFO_URL = "usr/info/"
-    CURRENCIES_LIST_URL = "mkt/currencies/?page={}"
-    MARKETS_LIST_URL = "mkt/markets/?page={}"
+    CURRENCIES_LIST_URL = "mkt/currencies/"
+    MARKETS_LIST_URL = "mkt/markets/"
+    TICKERS_LIST_URL = "mkt/tickers/"
     WALLETS_URL = "wlt/wallets/"
-    ORDERBOOK_URL = "mth/actives/{}/?type={}"
+    ORDERBOOK_URL = "mth/orderbook/{}/"
     RECENT_TRADES_URL = "mth/matches/{}/"
     ORDERS_URL = "odr/orders/"
+    FILLED_ORDERS_URL = "odr/fills/"
     USER_TRADES_URL = "odr/matches/?type={}"
+    BULK_ORDER_URL = "odr/orders/bulk/"
 
     def __init__(  # type: ignore[no-untyped-def]
         self,
@@ -296,13 +299,10 @@ class CoreClient(ABC):  # pylint: disable=too-many-instance-attributes
         raise NotImplementedError
 
     @abstractmethod
-    def get_currencies_info(self, page: int = 1, **kwargs) -> t.DictStrAny:  # type: ignore[no-untyped-def]
+    def get_currencies_info(self) -> t.CurrenciesInfo:  # type: ignore[no-untyped-def]
         """
         Get currencies info.
 
-        Args:
-            page (int): Page.
-
         Returns:
             dict: Response.
         """
@@ -310,12 +310,20 @@ class CoreClient(ABC):  # pylint: disable=too-many-instance-attributes
         raise NotImplementedError
 
     @abstractmethod
-    def get_markets_info(self, page: int = 1, **kwargs) -> t.DictStrAny:  # type: ignore[no-untyped-def]
+    def get_markets_info(self) -> t.MarketsInfo:  # type: ignore[no-untyped-def]
         """
         Get markets info.
 
-        Args:
-            page (int): Page.
+        Returns:
+            dict: Response.
+        """
+
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_tickers_info(self) -> t.DictStrAny:  # type: ignore[no-untyped-def]
+        """
+        Get tickers info.
 
         Returns:
             dict: Response.
@@ -324,41 +332,57 @@ class CoreClient(ABC):  # pylint: disable=too-many-instance-attributes
         raise NotImplementedError
 
     @abstractmethod
-    def get_wallets(self, **kwargs) -> t.DictStrAny:  # type: ignore[no-untyped-def]
+    def get_wallets(self, assets: t.OptionalStr, service: t.OptionalStr, offset: t.OptionalFloat, limit: t.OptionalInt) -> t.DictStrAny:  # type: ignore[no-untyped-def]
         """
         Get wallets.
 
+        Args:
+            assets: asset name [BTC, IRT, USDT, ...]
+            service: name of service
+            offset: asset balance offset, i.e. assets below 10000
+            limit: maximum received assets info
+
         Returns:
-            dict: Response.
+            Response (dict): Response.
+
+        Notes:
+            Rate limit: 10000/day.
         """
 
         raise NotImplementedError
 
     @abstractmethod
-    def get_orderbook(self, market_id: int, type: t.OrderTypes, **kwargs) -> t.OrderbookResponse:  # type: ignore[no-untyped-def]  # pylint: disable=redefined-builtin
+    def get_orderbook(
+        self,
+        base_asset: str,
+        quote_asset: t.OrderbookQuoteAsset
+    ) -> t.OrderbookResponse: # type: ignore[no-untyped-def]  # pylint: disable=redefined-builtin
         """
         Get orderbook.
 
         Args:
-            market_id (int): Market ID.
-            type (str): Type.
+            base_asset (str): Base asset.
+            quote_asset (str): Quote asset [IRT, USDT].
 
         Returns:
-            dict: Response.
+            Response (dict): Response.
         """
 
         raise NotImplementedError
 
     @abstractmethod
-    def get_recent_trades(self, market_id: int, **kwargs) -> t.TradeResponse:  # type: ignore[no-untyped-def]
+    def get_recent_trades(self,
+        base_asset: str,
+        quote_asset: t.OrderbookQuoteAsset) -> t.RecentTradesInfo:  # type: ignore[no-untyped-def]
         """
         Get recent trades.
 
         Args:
-            market_id (int): Market ID.
+            base_asset (str): Base asset.
+            quote_asset (str): Quote asset [IRT, USDT].
 
         Returns:
-            dict: Response.
+            Response (dict): Response.
         """
 
         raise NotImplementedError
@@ -366,24 +390,37 @@ class CoreClient(ABC):  # pylint: disable=too-many-instance-attributes
     @abstractmethod
     def get_user_orders(  # type: ignore[no-untyped-def]
         self,
-        market_id: t.OptionalInt = None,
-        type: t.OptionalOrderTypes = None,  # pylint: disable=redefined-builtin
-        state: t.OptionalStr = None,
-        mode: t.OptionalStr = None,
+        base_asset: t.OptionalStr = None,
+        quote_asset: t.OptionalQuoteAsset = None,
+        side: t.OptionalOrderTypesList = None,  # pylint: disable=redefined-builtin
+        state: t.OptionalOrderStateList = None,
+        type: t.OptionalOrderModesList = None,
         identifier: t.OptionalStr = None,
-        page: int = 1,
+        start: t.OptionalDate = None,
+        end: t.OptionalDate = None,
+        ids_in: t.OptionalStrList = None,
+        identifiers_in: t.OptionalStrList = None,
+        offset: t.OptionalInt = None,
+        limit: t.OptionalInt = None,
         **kwargs,
     ) -> t.OpenOrdersResponse:
         """
         Get user orders.
 
         Args:
-            market_id (int): Market ID.
-            type (str): Type.
-            state (str): State.
-            mode (str): Mode.
-            identifier (str): Identifier.
-            page (int): Page.
+            base_asset (Optional[str]): base asset symbol (e.g., BTC, ETH). Defaults to None.
+            quote_asset Optional[str]): quote asset symbol [USDT, IRT]. Defaults to None.
+            side (Optional[List[str]]): The type of order, either 'buy' or 'sell'. Defaults to None.
+            state (Optional[List[str]]): The state of the order, can be 'initial', 'active', or 'closed'. Defaults to None.
+            type (Optional[List[str]]): The type of the order, can be 'limit', 'market', 'stop_limit', or 'oco'. Defaults to None.
+            identifier (Optional[str]): A unique identifier for the order, useful for tracking or preventing duplicate entries. Defaults to None.
+            start (Optional[date]): Show orders created after this date. Defaults to None.
+            end (Optional[date]): Show orders created before this date. Defaults to None.
+            ids_in (Optional[List[str]]): A list of order IDs to filter results. Defaults to None.
+            identifiers_in (Optional[List[str]]): A list of specific order identifiers to filter results. Defaults to None.
+            offset (Optional[int]): Show orders with IDs less than this value. Defaults to None.
+            limit (Optional[int]): The maximum number of orders to retrieve (maximum: 100). Defaults to None.
+            **kwargs: Kwargs.
 
         Returns:
             dict: Response.
@@ -394,35 +431,77 @@ class CoreClient(ABC):  # pylint: disable=too-many-instance-attributes
     @abstractmethod
     def create_order(  # type: ignore[no-untyped-def]
         self,
-        market: int,
-        amount1: float,
-        price: float,
-        mode: t.OrderModes,
-        type: t.OrderTypes,  # pylint: disable=redefined-builtin
+        base_asset: str,
+        quote_asset: t.OrderbookQuoteAsset,
+        type: t.OrderModes,
+        side: t.OrderTypes,  # pylint: disable=redefined-builtin
+        base_amount: float,
+        quote_amount: t.OptionalFloat = None,
+        price: t.OptionalFloat = None,
+        stop_price: t.OptionalFloat = None,
+        oco_target_price: t.OptionalFloat = None,
         identifier: t.OptionalStr = None,
-        price_limit: t.OptionalFloat = None,
-        price_stop: t.OptionalFloat = None,
-        price_limit_oco: t.OptionalFloat = None,
-        amount2: t.OptionalFloat = None,
         **kwargs,
     ) -> t.CreateOrderResponse:
         """
         Create order.
 
         Args:
-            market (int): Market.
-            amount1 (float): Amount1.
-            price (float): Price.
-            mode (str): Mode.
-            type (str): Type.
-            identifier (str): Identifier.
-            price_limit (float): Price limit.
-            price_stop (float): Price stop.
-            price_limit_oco (float): Price limit oco.
-            amount2 (float): Amount2.
+            base_asset: str
+            quote_asset: [USDT, IRT]
+            type: t.OrderModes
+            side: t.OrderTypes
+            price: float
+            base_amount: float
+            quote_amount: t.OptionalFloat = None
+            stop_price: t.OptionalFloat = None
+            oco_target_price: t.OptionalFloat = None
+            identifier: t.OptionalStr = None
 
         Returns:
             dict: Response.
+        """
+
+        raise NotImplementedError
+
+    @abstractmethod
+    async def create_order_bulk(self, orders: t.BulkOrderList, **kwargs):
+        """
+        Create multiple orders in bulk.
+
+        Args:
+            orders (BulkOrderList): A list of order objects to be created in bulk.
+                Each order object (dict) should contain:
+                    - symbol (str): The market symbol for the order (e.g., USDT_IRT).
+                    - base_amount (float): The amount of the base asset to be ordered.
+                    - price (float): The price at which the order is placed (for limit orders).
+                    - side (str): The side of the order, either 'buy' or 'sell'.
+                    - type (str): The type of the order, such as 'limit', 'market', etc.
+            **kwargs: Additional parameters to be passed in the request.
+
+        Returns:
+            Response (dict): Response.
+        """
+
+        raise  NotImplementedError
+
+    @abstractmethod
+    def cancel_order_bulk(
+        self,
+        ids: t.OptionalStrList = None,
+        identifiers: t.OptionalStrList = None,
+        **kwargs
+    ) -> t.CancelBulkOrderResponse:
+        """
+        Cancel multiple orders in bulk using either order IDs or specific identifiers.
+
+        Args:
+            ids (Optional[List[str]]): A list of order IDs to cancel. Defaults to None.
+            identifiers (Optional[List[str]]): A list of specific order identifiers to cancel. Defaults to None.
+            **kwargs: Additional parameters.
+
+        Returns:
+            t.CancelBulkOrderResponse
         """
 
         raise NotImplementedError
@@ -444,21 +523,26 @@ class CoreClient(ABC):  # pylint: disable=too-many-instance-attributes
     @abstractmethod
     def get_user_trades(  # type: ignore[no-untyped-def]
         self,
-        market_id: t.OptionalInt = None,
-        type: t.OptionalOrderTypes = None,  # pylint: disable=redefined-builtin
-        page: int = 1,
-        **kwargs,
-    ) -> t.DictStrAny:
+        base_asset: t.OptionalStr = None,
+        quote_asset: t.OptionalQuoteAsset = None,
+        side: t.OptionalOrderTypesList = None,
+        offset: t.OptionalInt = None,
+        limit: t.OptionalInt = None,
+        **kwargs
+        ) -> t.TradeResponse:
         """
-        Get user trades.
+        Retrieve user filled (executed) orders based on provided filtering criteria.
 
         Args:
-            market_id (int): Market ID.
-            type (str): Type.
-            page (int): Page.
+            base_asset (Optional[str]): The base asset symbol (e.g., BTC, ETH). This is combined with the quote asset to form the market symbol. Defaults to None.
+            quote_asset (Optional[str]): The quote asset symbol (e.g., USDT, IRT). This is combined with the base asset to form the market symbol. Defaults to None.
+            side (Optional[str]): The side of the trade, either 'buy' or 'sell'. Defaults to None.
+            offset (Optional[int]): Fetch trades where the order ID is less than this value. Useful for pagination. Defaults to None.
+            limit (Optional[int]): Maximum number of trades to retrieve, with an upper limit of 100. Defaults to None.
+            **kwargs: Additional parameters.
 
         Returns:
-            dict: Response.
+            t.TradeResponse
         """
 
         raise NotImplementedError
