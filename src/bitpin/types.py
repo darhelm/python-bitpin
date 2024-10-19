@@ -7,21 +7,23 @@ Types for Python Bitpin.
 This file contains all the types used in the project.
 """
 
-import typing as t
 import asyncio
-import requests
-import aiohttp
+import typing as t
 from datetime import datetime
+
+import aiohttp
+import requests
+
 from . import enums
 
 # General Types:
 OptionalStr = t.Optional[str]
 OptionalInt = t.Optional[int]
 OptionalFloat = t.Optional[float]
-OptionalStrList = t.Optional[t.List[str]]
+OptionalStrList = t.Optional[list[str]]
 OptionalDate = t.Optional[datetime]
 
-DictStrAny = t.Dict[str, t.Any]
+DictStrAny = dict[str, t.Any]
 OptionalDictStrAny = t.Optional[DictStrAny]
 
 EventLoop = asyncio.AbstractEventLoop
@@ -33,14 +35,16 @@ OrderTypeSell = t.Literal["sell"]
 OrderTypes = t.Union[OrderTypeBuy, OrderTypeSell, enums.OrderType]
 
 OptionalOrderTypes = t.Optional[OrderTypes]
-OptionalOrderTypesList = t.Optional[t.List[OrderTypes]]
+OptionalOrderTypesList = t.Optional[list[OrderTypes]]
 
 OrderStateInitial = t.Literal["initial"]
 OrderStateActive = t.Literal["active"]
 OrderStateClosed = t.Literal["closed"]
-OrderState = t.Union[OrderStateInitial, OrderStateActive, OrderStateClosed, enums.OrderState]
+OrderState = t.Union[
+    OrderStateInitial, OrderStateActive, OrderStateClosed, enums.OrderState
+]
 OptionalOrderState = t.Optional[OrderState]
-OptionalOrderStateList = t.Optional[t.List[OrderState]]
+OptionalOrderStateList = t.Optional[list[OrderState]]
 
 QuoteAssetIRT = t.Literal["IRT"]
 QuoteAssetUSDT = t.Literal["USDT"]
@@ -51,9 +55,11 @@ OrderModeLimit = t.Literal["limit"]
 OrderModeMarket = t.Literal["market"]
 OrderModeOCO = t.Literal["oco"]
 OrderModeStopLimit = t.Literal["stop_limit"]
-OrderModes = t.Union[OrderModeLimit, OrderModeMarket, OrderModeOCO, OrderModeStopLimit, enums.OrderMode]
+OrderModes = t.Union[
+    OrderModeLimit, OrderModeMarket, OrderModeOCO, OrderModeStopLimit, enums.OrderMode
+]
 OptionalOrderModes = t.Optional[OrderModes]
-OptionalOrderModesList = t.Optional[t.List[OrderModes]]
+OptionalOrderModesList = t.Optional[list[OrderModes]]
 
 # HTTP Types:
 HttpSession = t.Union[requests.Session, aiohttp.ClientSession]
@@ -72,33 +78,28 @@ RequestMethods = t.Union[
     enums.RequestMethod,
 ]
 
-# Request Types:
-OrderDict = t.TypedDict(
-    "OrderDict",
-    {
-        "symbol": str,
-        "base_amount": float,
-        "price": float,
-        "side": OrderTypes,
-        "type": OrderModes
-    }
-)
 
-BulkOrderList = t.List[OrderDict]
+# Request Types:
+class OrderDict(t.TypedDict):
+    symbol: str
+    base_amount: float
+    price: float
+    side: OrderTypes
+    type: OrderModes
+
+
+BulkOrderList = list[OrderDict]
 
 # Response Types:
-CurrenciesInfo = t.List[t.TypedDict(
+CurrenciesInfo = list[
+    t.TypedDict(
         "CurrenciesInfo",
-        {
-            "currency": str,
-            "name": str,
-            "tradable": bool,
-            "precision": str
-        }
+        {"currency": str, "name": str, "tradable": bool, "precision": str},
     )
 ]
 
-MarketsInfo = t.List[t.TypedDict(
+MarketsInfo = list[
+    t.TypedDict(
         "MarketsInfo",
         {
             "symbol": str,
@@ -108,12 +109,13 @@ MarketsInfo = t.List[t.TypedDict(
             "tradable": bool,
             "price_precision": str,
             "base_amount_precision": str,
-            "quote_amount_precision": str
-        }
+            "quote_amount_precision": str,
+        },
     )
 ]
 
-TickersInfo = t.List[t.TypedDict(
+TickersInfo = list[
+    t.TypedDict(
         "TickersInfo",
         {
             "symbol": str,
@@ -121,84 +123,74 @@ TickersInfo = t.List[t.TypedDict(
             "daily_change_price": float,
             "low": str,
             "high": str,
-            "timestamp": float
-        }
+            "timestamp": float,
+        },
     )
 ]
 
-RecentTradesInfo = t.List[t.TypedDict(
+RecentTradesInfo = list[
+    t.TypedDict(
         "RecentTradesInfo",
         {
             "id": str,
             "price": str,
             "base_amount": str,
             "quote_amount": str,
-            "side": OrderTypes
-        }
-    )
-]
-
-InnerOrderbookResponse = t.TypedDict(
-    "InnerOrderbookResponse",
-    {
-        "price": str,
-        "quantity": str
-    }
-)
-
-OrderbookResponse = t.TypedDict("OrderbookResponse", {"asks": t.List[InnerOrderbookResponse], "bids": t.List[InnerOrderbookResponse]})
-
-LoginResponse = t.TypedDict(
-    "LoginResponse",
-    {
-        "refresh": str,
-        "access": str,
-    },
-)
-
-RefreshTokenResponse = t.TypedDict(
-    "RefreshTokenResponse",
-    {
-        "access": str,
-    },
-)
-
-WalletInfo = t.List[t.TypedDict(
-        "WalletInfo",
-        {
-             "id": int,
-             "asset": str,
-             "balance": str,
-             "frozen": str,
-             "service": str
+            "side": OrderTypes,
         },
     )
 ]
 
-CreateOrderResponse = t.TypedDict(
-    "CreateOrderResponse",
-    {
-        "id": int,
-        "symbol": str,
-        "type": OrderModes,
-        "side": OrderTypes,
-        "price": str,
-        "stop_price": OptionalStr,
-        "oco_target_price": OptionalStr,
-        "base_amount": str,
-        "quote_amount": str,
-        "identifier": OptionalStr,
-        "state": str,
-        "closed_at": OptionalStr,
-        "created_at": str,
-        "dealed_base_amount": str,
-        "dealed_quote_amount": str,
-        "req_to_cancel": bool,
-        "commission": str
-    },
-)
 
-OpenOrdersResponse = t.List[t.TypedDict(
+class InnerOrderbookResponse(t.TypedDict):
+    price: str
+    quantity: str
+
+
+class OrderbookResponse(t.TypedDict):
+    asks: list[InnerOrderbookResponse]
+    bids: list[InnerOrderbookResponse]
+
+
+class LoginResponse(t.TypedDict):
+    refresh: str
+    access: str
+
+
+class RefreshTokenResponse(t.TypedDict):
+    access: str
+
+
+WalletInfo = list[
+    t.TypedDict(
+        "WalletInfo",
+        {"id": int, "asset": str, "balance": str, "frozen": str, "service": str},
+    )
+]
+
+
+class CreateOrderResponse(t.TypedDict):
+    id: int
+    symbol: str
+    type: OrderModes
+    side: OrderTypes
+    price: str
+    stop_price: OptionalStr
+    oco_target_price: OptionalStr
+    base_amount: str
+    quote_amount: str
+    identifier: OptionalStr
+    state: str
+    closed_at: OptionalStr
+    created_at: str
+    dealed_base_amount: str
+    dealed_quote_amount: str
+    req_to_cancel: bool
+    commission: str
+
+
+OpenOrdersResponse = list[
+    t.TypedDict(
         "OpenOrdersResponse",
         {
             "id": int,
@@ -217,12 +209,13 @@ OpenOrdersResponse = t.List[t.TypedDict(
             "dealed_base_amount": str,
             "dealed_quote_amount": str,
             "req_to_cancel": bool,
-            "commission": str
+            "commission": str,
         },
     )
 ]
 
-TradeResponse = t.List[t.TypedDict(
+TradeResponse = list[
+    t.TypedDict(
         "TradeResponse",
         {
             "id": int,
@@ -235,23 +228,22 @@ TradeResponse = t.List[t.TypedDict(
             "side": OrderTypes,
             "order_id": int,
             "identifier": OptionalStr,
-        }
+        },
     )
 ]
 
-CancelOrderResponse = t.TypedDict(
-    "CancelOrderResponse",
-    {
-        "status": str,
-        "id": str,
-    },
-)
 
-CancelBulkOrderResponse = t.List[t.TypedDict(
+class CancelOrderResponse(t.TypedDict):
+    status: str
+    id: str
+
+
+CancelBulkOrderResponse = list[
+    t.TypedDict(
         "CancelBulkOrderResponse",
         {
-            "canceled_orders": t.List[OptionalStr],
-            "not_canceled_orders": t.List[OptionalStr],
+            "canceled_orders": list[OptionalStr],
+            "not_canceled_orders": list[OptionalStr],
         },
     )
 ]

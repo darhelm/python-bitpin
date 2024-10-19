@@ -3,17 +3,18 @@
 # pylint: disable=invalid-overridden-method
 
 import asyncio
-import aiohttp
-import warnings
+from warnings import warn
 
-from .core import CoreClient
-from .. import types as t
+import aiohttp
+
 from .. import enums
+from .. import types as t
+from .._utils import get_loop
 from ..exceptions import (
     APIException,
     RequestException,
 )
-from .._utils import get_loop
+from .core import CoreClient
 
 
 class AsyncClient(CoreClient):
@@ -23,7 +24,6 @@ class AsyncClient(CoreClient):
     Methods:
         login: Login and set (refresh_token/access_token)
         refresh_access_token: Refresh token.
-        get_user_info: Get user info.
         get_currencies_info: Get currencies info.
         get_markets_info: Get markets info.
         get_tickets_info: Get tickets info.
@@ -33,6 +33,8 @@ class AsyncClient(CoreClient):
         get_user_orders: Get user orders.
         create_order: Create order.
         cancel_order: Cancel order.
+        create_order_bulk: Create Bulk Order.
+        cancel_order_bulk: Cancel Bulk Order.
         get_user_trades: Get user trades.
         close_connection: Close connection.
 
@@ -199,7 +201,9 @@ class AsyncClient(CoreClient):
             dict: Response.
         """
 
-        return await self._request_api(enums.RequestMethod.GET, path, signed, version, **kwargs)
+        return await self._request_api(
+            enums.RequestMethod.GET, path, signed, version, **kwargs
+        )
 
     async def _post(  # type: ignore[no-untyped-def, override]
         self,
@@ -221,7 +225,9 @@ class AsyncClient(CoreClient):
             dict: Response.
         """
 
-        return await self._request_api(enums.RequestMethod.POST, path, signed, version, **kwargs)
+        return await self._request_api(
+            enums.RequestMethod.POST, path, signed, version, **kwargs
+        )
 
     async def _delete(  # type: ignore[no-untyped-def, override]
         self,
@@ -243,7 +249,9 @@ class AsyncClient(CoreClient):
             dict: Response.
         """
 
-        return await self._request_api(enums.RequestMethod.DELETE, path, signed, version, **kwargs)
+        return await self._request_api(
+            enums.RequestMethod.DELETE, path, signed, version, **kwargs
+        )
 
     async def _request_api(  # type: ignore[no-untyped-def, override]
         self,
@@ -315,7 +323,9 @@ class AsyncClient(CoreClient):
                 return {"status": "success", "id": response.request_info.url.parts[-2]}
             return await response.json()  # type: ignore[no-any-return]
         except ValueError as exc:
-            raise RequestException(f"Invalid Response: {await response.text()}") from exc
+            raise RequestException(
+                f"Invalid Response: {await response.text()}"
+            ) from exc
 
     async def _background_relogin_task(self) -> None:  # type: ignore[override]
         """Background relogin task."""
@@ -344,10 +354,10 @@ class AsyncClient(CoreClient):
             await self.login()
 
         if self._background_relogin:
-            self.loop.create_task(self._background_relogin_task())  # noqa
+            self.loop.create_task(self._background_relogin_task())
 
         if self._background_refresh_token:
-            self.loop.create_task(self._background_refresh_token_task())  # noqa
+            self.loop.create_task(self._background_refresh_token_task())
 
     async def login(self, **kwargs) -> t.LoginResponse:  # type: ignore[no-untyped-def, override]
         """
@@ -363,6 +373,10 @@ class AsyncClient(CoreClient):
             [API Docs](https://docs.bitpin.ir/v1/docs/authentication/intro)
         """
 
+        if self.LOGIN_URL == "usr/api/login/":
+            warn(
+                "this login url has been deprecated! if your code relies on this old end point import client from bitpin.deprecated!"
+            )
         kwargs["json"] = {"api_key": self.api_key, "secret_key": self.api_secret}
         _: t.LoginResponse = await self._post(self.LOGIN_URL, **kwargs)  # type: ignore[assignment]
 
@@ -395,24 +409,160 @@ class AsyncClient(CoreClient):
 
         return _
 
-    async def get_user_info(self, **kwargs) -> t.DictStrAny:  # type: ignore[no-untyped-def, override]
+    # Deprecated Methods
+    async def get_user_info(self, **kwargs) -> None:  # type: ignore[no-untyped-def, override]
         """
-        Get user info.
-
-        Args:
-            **kwargs: Kwargs.
-
-        Returns:
-            Response (dict): Response.
-
-        References:
-            [API Docs](https://docs.bitpin.ir/#5b3c85d79e)
+        Get user info (DEPRECATED).
         """
 
-        return await self._get(self.USER_INFO_URL, signed=True, **kwargs)
+        warn(
+            "get_user_info is deprecated! refer to new method docs for new usage! if deprecated method's usage is still in need import client from bitpin.deprecated instead!",
+            DeprecationWarning,
+            2,
+        )
 
     async def get_currencies_info(  # type: ignore[no-untyped-def, override]
-        self) -> t.CurrenciesInfo:
+        self, page: int = 1, **kwargs
+    ) -> None:
+        """
+        Get user info (DEPRECATED).
+        """
+
+        warn(
+            "get_currencies_info is deprecated! refer to new method docs for new usage! if deprecated method's usage is still in need import client from bitpin.deprecated instead!",
+            DeprecationWarning,
+            2,
+        )
+
+    async def get_markets_info(self, page: int = 1, **kwargs) -> None:
+        """
+        Get Markets info (DEPRECATED).
+        """
+
+        warn(
+            "get_markets_info is deprecated! refer to new method docs for new usage! if deprecated method's usage is still in need import client from bitpin.deprecated instead!",
+            DeprecationWarning,
+            2,
+        )
+
+    async def get_wallets(self, **kwargs) -> None:
+        """
+        Get Wallets info (DEPRECATED).
+        """
+
+        warn(
+            "get_wallets is deprecated! refer to new method docs for new usage! if deprecated method's usage is still in need import client from bitpin.deprecated instead!",
+            DeprecationWarning,
+            2,
+        )
+
+    async def get_orderbook(  # type: ignore[no-untyped-def, override]
+        self,
+        market_id: int,
+        type: t.OrderTypes,
+        **kwargs,  # pylint: disable=redefined-builtin
+    ) -> None:
+        """
+        Get Order Book info (DEPRECATED).
+        """
+
+        warn(
+            "get_orderbook is deprecated! refer to new method docs for new usage! if deprecated method's usage is still in need import client from bitpin.deprecated instead!",
+            DeprecationWarning,
+            2,
+        )
+
+    async def get_recent_trades(  # type: ignore[no-untyped-def, override]
+        self, market_id: int, **kwargs
+    ) -> None:
+        """
+        Get Recent Trades info (DEPRECATED).
+        """
+
+        warn(
+            "get_recent_trades is deprecated! refer to new method docs for new usage! if deprecated method's usage is still in need import client from bitpin.deprecated instead!",
+            DeprecationWarning,
+            2,
+        )
+
+    async def get_user_orders(  # type: ignore[no-untyped-def, override]
+        self,
+        market_id: t.OptionalInt = None,
+        type: t.OptionalOrderTypes = None,  # pylint: disable=redefined-builtin
+        state: t.OptionalStr = None,
+        mode: t.OptionalStr = None,
+        identifier: t.OptionalStr = None,
+        page: int = 1,
+        **kwargs,
+    ) -> None:
+        """
+        Get User Orders info (DEPRECATED).
+        """
+
+        warn(
+            "get_user_orders is deprecated! refer to new method docs for new usage! if deprecated method's usage is still in need import client from bitpin.deprecated instead!",
+            DeprecationWarning,
+            2,
+        )
+
+    async def create_order(  # type: ignore[no-untyped-def, override]
+        self,
+        market: int,
+        amount1: float,
+        price: float,
+        mode: t.OrderModes,
+        type: t.OrderTypes,  # pylint: disable=redefined-builtin
+        identifier: t.OptionalStr = None,
+        price_limit: t.OptionalFloat = None,
+        price_stop: t.OptionalFloat = None,
+        price_limit_oco: t.OptionalFloat = None,
+        amount2: t.OptionalFloat = None,
+        **kwargs,
+    ) -> None:
+        """
+        Create Order (DEPRECATED).
+        """
+
+        warn(
+            "create_order is deprecated! refer to new method docs for new usage! if deprecated method's usage is still in need import client from bitpin.deprecated instead!",
+            DeprecationWarning,
+            2,
+        )
+
+    async def cancel_order(  # type: ignore[no-untyped-def, override]
+        self, order_id: str, **kwargs
+    ) -> None:
+        """
+        Cancel Order (DEPRECATED).
+        """
+
+        warn(
+            "cancel_order is deprecated! refer to new method docs for new usage! if deprecated method's usage is still in need import client from bitpin.deprecated instead!",
+            DeprecationWarning,
+            2,
+        )
+
+    async def get_user_trades(  # type: ignore[no-untyped-def, override]
+        self,
+        market_id: t.OptionalInt = None,
+        type: t.OptionalOrderTypes = None,  # pylint: disable=redefined-builtin
+        page: int = 1,
+        **kwargs,
+    ) -> None:
+        """
+        Get User Trades Info (DEPRECATED).
+        """
+
+        warn(
+            "get_user_trades is deprecated! refer to new method docs for new usage! if deprecated method's usage is still in need import client from bitpin.deprecated instead!",
+            DeprecationWarning,
+            2,
+        )
+
+    # Working Methods
+    async def get_currencies_info(  # type: ignore[no-untyped-def, override]
+        self,
+    ) -> t.CurrenciesInfo:
         """
         Get currencies info.
 
@@ -455,12 +605,19 @@ class AsyncClient(CoreClient):
             [API Docs](https://docs.bitpin.ir/v1/docs/market-data/tickers)
 
         Notes:
-            Rate limit: 10000/day or 200/minute if you are authenticated.
+            Rate limit: 80/minute .
         """
 
         return await self._get(self.TICKERS_LIST_URL)
 
-    async def get_wallets(self, assets: t.OptionalStr, service: t.OptionalStr, offset: t.OptionalInt, limit: t.OptionalInt, **kwargs) -> t.WalletInfo:  # type: ignore[no-untyped-def, override]
+    async def get_wallets(  # type: ignore[no-untyped-def, override]
+        self,
+        assets: t.OptionalStr,
+        service: t.OptionalStr,
+        offset: t.OptionalInt,
+        limit: t.OptionalInt,
+        **kwargs,
+    ) -> t.WalletInfo:
         """
         Get wallets.
 
@@ -480,13 +637,15 @@ class AsyncClient(CoreClient):
             Rate limit: 10000/day.
         """
 
-        kwargs["params"] = {k: str(v) for k, v in locals().items() if v is not None and k not in ("self", "kwargs")}
+        kwargs["params"] = {
+            k: str(v)
+            for k, v in locals().items()
+            if v is not None and k not in ("self", "kwargs")
+        }
         return await self._get(self.WALLETS_URL, signed=True, **kwargs)
 
     async def get_orderbook(  # type: ignore[no-untyped-def, override]
-        self,
-        base_asset: str,
-        quote_asset: t.OrderbookQuoteAsset
+        self, base_asset: str, quote_asset: t.OrderbookQuoteAsset
     ) -> t.OrderbookResponse:
         """
         Get orderbook.
@@ -500,17 +659,19 @@ class AsyncClient(CoreClient):
 
         References:
             [API Docs](https://docs.bitpin.ir/v1/docs/market-data/orderbook)
+
+        Notes:
+            Rate Limit: 60 Requests/minute
         """
 
         _symbol = f"{base_asset}_{quote_asset}".upper()
         return await self._get(  # type: ignore[return-value]
-            self.ORDERBOOK_URL.format(_symbol, str(type)), version=self.PUBLIC_API_VERSION_1,
+            self.ORDERBOOK_URL.format(_symbol, str(type)),
+            version=self.PUBLIC_API_VERSION_1,
         )
 
     async def get_recent_trades(  # type: ignore[no-untyped-def, override]
-        self,
-        base_asset: str,
-        quote_asset: t.OrderbookQuoteAsset
+        self, base_asset: str, quote_asset: t.OrderbookQuoteAsset
     ) -> t.RecentTradesInfo:
         """
         Get recent trades.
@@ -524,9 +685,12 @@ class AsyncClient(CoreClient):
 
         References:
             [API Docs](https://docs.bitpin.ir/v1/docs/market-data/matches)
+
+        Notes:
+            Rate Limit: 60 requests/minute
         """
 
-        _symbol= f"{base_asset}_{quote_asset}".upper()
+        _symbol = f"{base_asset}_{quote_asset}".upper()
         return await self._get(self.RECENT_TRADES_URL.format(_symbol))  # type: ignore[return-value]
 
     async def get_user_orders(  # type: ignore[no-untyped-def, override]
@@ -550,7 +714,7 @@ class AsyncClient(CoreClient):
 
         Args:
             base_asset (Optional[str]): base asset symbol (e.g., BTC, ETH). Defaults to None.
-            quote_asset Optional[str]): quote asset symbol [USDT, IRT]. Defaults to None.
+            quote_asset (Optional[str]): quote asset symbol [USDT, IRT]. Defaults to None.
             side (Optional[List[str]]): The type of order, either 'buy' or 'sell'. Defaults to None.
             state (Optional[List[str]]): The state of the order, can be 'initial', 'active', or 'closed'. Defaults to None.
             type (Optional[List[str]]): The type of the order, can be 'limit', 'market', 'stop_limit', or 'oco'. Defaults to None.
@@ -568,11 +732,21 @@ class AsyncClient(CoreClient):
 
         References:
             [API Docs](https://docs.bitpin.ir/v1/docs/order/get_order_list)
+
+        Notes:
+            Rate Limit: 80 Requests/minute
         """
 
         if base_asset and quote_asset:
             kwargs["params"]["symbol"] = f"{base_asset}_{quote_asset}".upper()
-        kwargs["params"] = {k: str(v) for k, v in locals().items() if v is not None and k not in ("self", "kwargs", "base_asset", "quote_asset")}
+        kwargs["params"].update(
+            {
+                k: str(v)
+                for k, v in locals().items()
+                if v is not None
+                and k not in ("self", "kwargs", "base_asset", "quote_asset")
+            }
+        )
         return await self._get(self.ORDERS_URL, signed=True, **kwargs)  # type: ignore[return-value]
 
     async def create_order(  # type: ignore[no-untyped-def, override]
@@ -610,6 +784,9 @@ class AsyncClient(CoreClient):
 
         References:
             [API Docs](https://docs.bitpin.ir/v1/docs/order/place_order)
+
+        Notes:
+            Rate Limit: 5400 Requests/hour
         """
 
         _symbol = f"{base_asset}_{quote_asset}".upper()
@@ -622,7 +799,7 @@ class AsyncClient(CoreClient):
             "quote_amount": quote_amount,
             "stop_price": stop_price,
             "oco_target_price": oco_target_price,
-            "identifier": identifier
+            "identifier": identifier,
         }
 
         kwargs["json"] = {k: v for k, v in kwargs["json"].items() if v is not None}
@@ -652,6 +829,9 @@ class AsyncClient(CoreClient):
 
         References:
             [API Docs](https://docs.bitpin.ir/v1/docs/order/Bulk%20Orders/Place_Bulk_Orders)
+
+        Notes:
+            Rate Limit: 1800 Requests/hour
         """
 
         kwargs["json"] = {k: v for k, v in kwargs["json"].items() if v is not None}
@@ -661,7 +841,8 @@ class AsyncClient(CoreClient):
         self,
         ids: t.OptionalStrList = None,
         identifiers: t.OptionalStrList = None,
-        **kwargs) -> t.CancelBulkOrderResponse:
+        **kwargs,
+    ) -> t.CancelBulkOrderResponse:
         """
         Cancel multiple orders in bulk using either order IDs or specific identifiers.
 
@@ -677,7 +858,11 @@ class AsyncClient(CoreClient):
             [API Docs](https://docs.bitpin.ir/v1/docs/order/Bulk%20Orders/Cancel_Bulk_Orders)
         """
 
-        kwargs["json"] = {k: str(v) for k, v in locals().items() if v is not None and k not in ("self", "kwargs")}
+        kwargs["json"] = {
+            k: str(v)
+            for k, v in locals().items()
+            if v is not None and k not in ("self", "kwargs")
+        }
         return await self._delete(self.BULK_ORDER_URL, signed=True, **kwargs)  # type: ignore[return-value]
 
     async def cancel_order(  # type: ignore[no-untyped-def, override]
@@ -695,9 +880,13 @@ class AsyncClient(CoreClient):
 
         References:
             [API Docs](https://docs.bitpin.ir/v1/docs/order/cancel)
+
+        Notes:
+            Rate Limit: 5400 Requests/hour
         """
 
-        return await self._delete(self.ORDERS_URL + f"{order_id}/", signed=True, **kwargs)  # type: ignore[return-value]
+        await self._delete(self.ORDERS_URL + f"{order_id}/", signed=True, **kwargs)  # type: ignore[return-value]
+        return {"status": "success", "id": order_id}
 
     async def get_user_trades(  # type: ignore[no-untyped-def, override]
         self,
@@ -706,10 +895,10 @@ class AsyncClient(CoreClient):
         side: t.OptionalOrderTypesList = None,
         offset: t.OptionalInt = None,
         limit: t.OptionalInt = None,
-        **kwargs
+        **kwargs,
     ) -> t.TradeResponse:
         """
-        Retrieve user filled (executed) orders based on provided filtering criteria.
+        Retrieve user filled (executed) orders.
 
         Args:
             base_asset (Optional[str]): The base asset symbol (e.g., BTC, ETH). This is combined with the quote asset to form the market symbol. Defaults to None.
@@ -724,11 +913,21 @@ class AsyncClient(CoreClient):
 
         References:
             [API Docs](https://docs.bitpin.ir/v1/docs/order/get_fills_list)
+
+        Notes:
+            Rate Limit: 80 Requests/minute
         """
 
         if base_asset and quote_asset:
             kwargs["params"]["symbol"] = f"{base_asset}_{quote_asset}".upper()
-        kwargs["params"] = {k: str(v) for k, v in locals().items() if v is not None and k not in ("self", "kwargs", "base_asset", "quote_asset")}
+        kwargs["params"].update(
+            {
+                k: str(v)
+                for k, v in locals().items()
+                if v is not None
+                and k not in ("self", "kwargs", "base_asset", "quote_asset")
+            }
+        )
 
         return await self._get(self.ORDERS_URL, signed=True, **kwargs)  # type: ignore[return-value]
 
