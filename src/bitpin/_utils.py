@@ -51,9 +51,7 @@ def validate_parameters(func: Callable[..., Any]) -> Callable[..., Any]:
     return async_wrapper if inspect.iscoroutinefunction(func) else sync_wrapper
 
 
-async def _validate_and_call(
-    func: Callable[..., Any], args: tuple[Any, ...], kwargs: dict
-) -> Any:
+async def _validate_and_call(func: Callable[..., Any], args: tuple[Any, ...], kwargs: dict) -> Any:
     signature = inspect.signature(func)
     valid_params = set(signature.parameters.keys())
 
@@ -79,11 +77,7 @@ async def _validate_and_call(
             )
 
     try:
-        return (
-            await func(*args, **kwargs)
-            if inspect.iscoroutinefunction(func)
-            else func(*args, **kwargs)
-        )
+        return await func(*args, **kwargs) if inspect.iscoroutinefunction(func) else func(*args, **kwargs)
     except TypeError as e:
         msg = (
             f"Error: {e!s}. This may be due to unexpected keyword arguments. "

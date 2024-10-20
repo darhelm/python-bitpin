@@ -135,9 +135,7 @@ class Client(CoreClient):
             dict: Response.
         """
 
-        return self._request_api(
-            enums.RequestMethod.GET, path, signed, version, **kwargs
-        )
+        return self._request_api(enums.RequestMethod.GET, path, signed, version, **kwargs)
 
     def _post(  # type: ignore[no-untyped-def]
         self,
@@ -159,9 +157,7 @@ class Client(CoreClient):
             dict: Response.
         """
 
-        return self._request_api(
-            enums.RequestMethod.POST, path, signed, version, **kwargs
-        )
+        return self._request_api(enums.RequestMethod.POST, path, signed, version, **kwargs)
 
     def _delete(  # type: ignore[no-untyped-def]
         self,
@@ -183,9 +179,7 @@ class Client(CoreClient):
             dict: Response.
         """
 
-        return self._request_api(
-            enums.RequestMethod.DELETE, path, signed, version, **kwargs
-        )
+        return self._request_api(enums.RequestMethod.DELETE, path, signed, version, **kwargs)
 
     def _request_api(  # type: ignore[no-untyped-def]
         self,
@@ -440,11 +434,7 @@ class Client(CoreClient):
             Rate limit: 10000/day.
         """
 
-        kwargs["params"] = {
-            k: str(v)
-            for k, v in locals().items()
-            if v is not None and k not in {"self", "kwargs"}
-        }
+        kwargs["params"] = {k: str(v) for k, v in locals().items() if v is not None and k not in {"self", "kwargs"}}
         return self._get(self.WALLETS_URL, signed=True, **kwargs)
 
     @validate_parameters
@@ -550,8 +540,7 @@ class Client(CoreClient):
             {
                 k: str(v)
                 for k, v in locals().items()
-                if v is not None
-                and k not in {"self", "kwargs", "base_asset", "quote_asset"}
+                if v is not None and k not in {"self", "kwargs", "base_asset", "quote_asset"}
             }
         )
         return self._get(self.ORDERS_URL, signed=True, **kwargs)  # type: ignore[return-value]
@@ -614,9 +603,7 @@ class Client(CoreClient):
         return self._post(self.ORDERS_URL, signed=True, **kwargs)  # type: ignore[return-value]
 
     @validate_parameters
-    def cancel_order(  # type: ignore[no-untyped-def, override]
-        self, order_id: str, **kwargs
-    ) -> t.CancelOrderResponse:
+    def cancel_order(self, order_id: str, **kwargs) -> t.CancelOrderResponse:  # type: ignore[no-untyped-def, override]
         """
         Cancel order.
 
@@ -680,11 +667,7 @@ class Client(CoreClient):
             msg = "All orders must be in the same market! not creating order!"
             raise ValueError(msg)
 
-        kwargs["json"] = {
-            k: str(v)
-            for k, v in locals().items()
-            if v is not None and k not in {"self", "kwargs"}
-        }
+        kwargs["json"] = {k: str(v) for k, v in locals().items() if v is not None and k not in {"self", "kwargs"}}
         return self._post(self.BULK_ORDER_URL, signed=True, **kwargs)  # type: ignore[return-value]
 
     def cancel_order_bulk(
@@ -708,11 +691,7 @@ class Client(CoreClient):
             [API Docs](https://docs.bitpin.ir/v1/docs/order/Bulk%20Orders/Cancel_Bulk_Orders)
         """
 
-        kwargs["json"] = {
-            k: str(v)
-            for k, v in locals().items()
-            if v is not None and k not in {"self", "kwargs"}
-        }
+        kwargs["json"] = {k: str(v) for k, v in locals().items() if v is not None and k not in {"self", "kwargs"}}
         return self._delete(self.BULK_ORDER_URL, signed=True, **kwargs)  # type: ignore[return-value]
 
     @validate_parameters
@@ -753,8 +732,7 @@ class Client(CoreClient):
             {
                 k: str(v)
                 for k, v in locals().items()
-                if v is not None
-                and k not in {"self", "kwargs", "base_asset", "quote_asset"}
+                if v is not None and k not in {"self", "kwargs", "base_asset", "quote_asset"}
             }
         )
 
