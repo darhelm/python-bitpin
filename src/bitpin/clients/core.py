@@ -6,13 +6,13 @@ from abc import (
     abstractmethod,
 )
 
-from .. import types as t
+from .. import response_types as t
 
 
 class CoreClient(ABC):  # pylint: disable=too-many-instance-attributes
     """Core Client."""
 
-    API_URL = "https://api.bitpin.ir"
+    API_URL = "https://api.bitpin.ir/api"
 
     PUBLIC_API_VERSION_1 = "v1"
     PUBLIC_API_VERSION_2 = "v2"

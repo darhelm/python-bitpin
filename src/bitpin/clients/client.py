@@ -7,7 +7,8 @@ from warnings import warn
 import requests
 
 from .. import enums
-from .. import types as t
+from .. import response_types as t
+from .._utils import validate_parameters
 from ..exceptions import (
     APIException,
     RequestException,
@@ -259,7 +260,8 @@ class Client(CoreClient):
         try:
             return response.json()  # type: ignore[no-any-return]
         except ValueError as exc:
-            raise RequestException(f"Invalid Response: {response.text}") from exc
+            msg = f"Invalid Response: {response.text}"
+            raise RequestException(msg) from exc
 
     def _handle_login(self) -> None:
         """Handle login."""
@@ -309,9 +311,14 @@ class Client(CoreClient):
 
         if self.LOGIN_URL == "usr/api/login/":
             warn(
-                "this login url has been deprecated! if your code relies on this old end point import client from bitpin.deprecated!"
+                "this login url has been deprecated! if your code relies on this old end point import client from bitpin.deprecated!",
+                DeprecationWarning,
+                2,
             )
-        kwargs["json"] = {"api_key": self.api_key, "secret_key": self.api_secret}
+        kwargs["json"] = {
+            "api_key": self.api_key,
+            "secret_key": self.api_secret
+        }
         _: t.LoginResponse = self._post(self.LOGIN_URL, **kwargs)  # type: ignore[assignment]
 
         self.refresh_token = _["refresh"]
@@ -336,7 +343,9 @@ class Client(CoreClient):
             [API Docs](https://docs.bitpin.ir/v1/docs/authentication/refresh_token)
         """
 
-        kwargs["json"] = {"refresh": refresh_token or self.refresh_token}
+        kwargs["json"] = {
+            "refresh": refresh_token or self.refresh_token
+        }
         _: t.RefreshTokenResponse = self._post(self.REFRESH_TOKEN_URL, **kwargs)  # type: ignore[assignment]
 
         self.access_token = _["access"]
@@ -350,150 +359,13 @@ class Client(CoreClient):
         """
 
         warn(
-            "get_user_info is deprecated! refer to new method docs for new usage! if deprecated method's usage is still in need import client from bitpin.deprecated instead!",
-            DeprecationWarning,
-            2,
-        )
-
-    def get_currencies_info(  # type: ignore[no-untyped-def, override]
-        self, page: int = 1, **kwargs
-    ) -> None:
-        """
-        Get user info (DEPRECATED).
-        """
-
-        warn(
-            "get_currencies_info is deprecated! refer to new method docs for new usage! if deprecated method's usage is still in need import client from bitpin.deprecated instead!",
-            DeprecationWarning,
-            2,
-        )
-
-    def get_markets_info(self, page: int = 1, **kwargs) -> None:
-        """
-        Get Markets info (DEPRECATED).
-        """
-
-        warn(
-            "get_markets_info is deprecated! refer to new method docs for new usage! if deprecated method's usage is still in need import client from bitpin.deprecated instead!",
-            DeprecationWarning,
-            2,
-        )
-
-    def get_wallets(self, **kwargs) -> None:
-        """
-        Get Wallets info (DEPRECATED).
-        """
-
-        warn(
-            "get_wallets is deprecated! refer to new method docs for new usage! if deprecated method's usage is still in need import client from bitpin.deprecated instead!",
-            DeprecationWarning,
-            2,
-        )
-
-    def get_orderbook(  # type: ignore[no-untyped-def, override]
-        self,
-        market_id: int,
-        type: t.OrderTypes,
-        **kwargs,  # pylint: disable=redefined-builtin
-    ) -> None:
-        """
-        Get Order Book info (DEPRECATED).
-        """
-
-        warn(
-            "get_orderbook is deprecated! refer to new method docs for new usage! if deprecated method's usage is still in need import client from bitpin.deprecated instead!",
-            DeprecationWarning,
-            2,
-        )
-
-    def get_recent_trades(  # type: ignore[no-untyped-def, override]
-        self, market_id: int, **kwargs
-    ) -> None:
-        """
-        Get Recent Trades info (DEPRECATED).
-        """
-
-        warn(
-            "get_recent_trades is deprecated! refer to new method docs for new usage! if deprecated method's usage is still in need import client from bitpin.deprecated instead!",
-            DeprecationWarning,
-            2,
-        )
-
-    def get_user_orders(  # type: ignore[no-untyped-def, override]
-        self,
-        market_id: t.OptionalInt = None,
-        type: t.OptionalOrderTypes = None,  # pylint: disable=redefined-builtin
-        state: t.OptionalStr = None,
-        mode: t.OptionalStr = None,
-        identifier: t.OptionalStr = None,
-        page: int = 1,
-        **kwargs,
-    ) -> None:
-        """
-        Get User Orders info (DEPRECATED).
-        """
-
-        warn(
-            "get_user_orders is deprecated! refer to new method docs for new usage! if deprecated method's usage is still in need import client from bitpin.deprecated instead!",
-            DeprecationWarning,
-            2,
-        )
-
-    def create_order(  # type: ignore[no-untyped-def, override]
-        self,
-        market: int,
-        amount1: float,
-        price: float,
-        mode: t.OrderModes,
-        type: t.OrderTypes,  # pylint: disable=redefined-builtin
-        identifier: t.OptionalStr = None,
-        price_limit: t.OptionalFloat = None,
-        price_stop: t.OptionalFloat = None,
-        price_limit_oco: t.OptionalFloat = None,
-        amount2: t.OptionalFloat = None,
-        **kwargs,
-    ) -> None:
-        """
-        Create Order (DEPRECATED).
-        """
-
-        warn(
-            "create_order is deprecated! refer to new method docs for new usage! if deprecated method's usage is still in need import client from bitpin.deprecated instead!",
-            DeprecationWarning,
-            2,
-        )
-
-    def cancel_order(  # type: ignore[no-untyped-def, override]
-        self, order_id: str, **kwargs
-    ) -> None:
-        """
-        Cancel Order (DEPRECATED).
-        """
-
-        warn(
-            "cancel_order is deprecated! refer to new method docs for new usage! if deprecated method's usage is still in need import client from bitpin.deprecated instead!",
-            DeprecationWarning,
-            2,
-        )
-
-    def get_user_trades(  # type: ignore[no-untyped-def, override]
-        self,
-        market_id: t.OptionalInt = None,
-        type: t.OptionalOrderTypes = None,  # pylint: disable=redefined-builtin
-        page: int = 1,
-        **kwargs,
-    ) -> None:
-        """
-        Get User Trades Info (DEPRECATED).
-        """
-
-        warn(
-            "get_user_trades is deprecated! refer to new method docs for new usage! if deprecated method's usage is still in need import client from bitpin.deprecated instead!",
+            "get_user_info is deprecated! if deprecated method's usage is still in need import client from bitpin.deprecated instead!",
             DeprecationWarning,
             2,
         )
 
     # Working Methods
+    @validate_parameters
     def get_currencies_info(  # type: ignore[no-untyped-def, override]
         self,
     ) -> t.CurrenciesInfo:
@@ -512,6 +384,7 @@ class Client(CoreClient):
 
         return self._get(self.CURRENCIES_LIST_URL)
 
+    @validate_parameters
     def get_markets_info(self) -> t.MarketsInfo:  # type: ignore[no-untyped-def, override]
         """
         Get markets info.
@@ -544,12 +417,13 @@ class Client(CoreClient):
 
         return self._get(self.TICKERS_LIST_URL)
 
+    @validate_parameters
     def get_wallets(  # type: ignore[no-untyped-def, override]
         self,
-        assets: t.OptionalStr,
-        service: t.OptionalStr,
-        offset: t.OptionalInt,
-        limit: t.OptionalInt,
+        assets: t.OptionalStr = None,
+        service: t.OptionalStr = None,
+        offset: t.OptionalInt = None,
+        limit: t.OptionalInt = None,
         **kwargs,
     ) -> t.WalletInfo:
         """
@@ -574,10 +448,11 @@ class Client(CoreClient):
         kwargs["params"] = {
             k: str(v)
             for k, v in locals().items()
-            if v is not None and k not in ("self", "kwargs")
+            if v is not None and k not in {"self", "kwargs"}
         }
         return self._get(self.WALLETS_URL, signed=True, **kwargs)
 
+    @validate_parameters
     def get_orderbook(  # type: ignore[no-untyped-def, override]
         self, base_asset: str, quote_asset: t.OrderbookQuoteAsset
     ) -> t.OrderbookResponse:
@@ -604,6 +479,7 @@ class Client(CoreClient):
             version=self.PUBLIC_API_VERSION_1,
         )
 
+    @validate_parameters
     def get_recent_trades(  # type: ignore[no-untyped-def, override]
         self, base_asset: str, quote_asset: t.OrderbookQuoteAsset
     ) -> t.RecentTradesInfo:
@@ -627,6 +503,7 @@ class Client(CoreClient):
         _symbol = f"{base_asset}_{quote_asset}".upper()
         return self._get(self.RECENT_TRADES_URL.format(_symbol))  # type: ignore[return-value]
 
+    @validate_parameters
     def get_user_orders(  # type: ignore[no-untyped-def, override]
         self,
         base_asset: t.OptionalStr = None,
@@ -671,6 +548,7 @@ class Client(CoreClient):
             Rate Limit: 80 Requests/minute
         """
 
+        kwargs["params"] = kwargs.get("params", {})
         if base_asset and quote_asset:
             kwargs["params"]["symbol"] = f"{base_asset}_{quote_asset}".upper()
         kwargs["params"].update(
@@ -678,11 +556,12 @@ class Client(CoreClient):
                 k: str(v)
                 for k, v in locals().items()
                 if v is not None
-                and k not in ("self", "kwargs", "base_asset", "quote_asset")
+                   and k not in {"self", "kwargs", "base_asset", "quote_asset"}
             }
         )
         return self._get(self.ORDERS_URL, signed=True, **kwargs)  # type: ignore[return-value]
 
+    @validate_parameters
     def create_order(  # type: ignore[no-untyped-def, override]
         self,
         base_asset: str,
@@ -739,6 +618,33 @@ class Client(CoreClient):
         kwargs["json"] = {k: v for k, v in kwargs["json"].items() if v is not None}
         return self._post(self.ORDERS_URL, signed=True, **kwargs)  # type: ignore[return-value]
 
+    @validate_parameters
+    def cancel_order(  # type: ignore[no-untyped-def, override]
+        self, order_id: str, **kwargs
+    ) -> t.CancelOrderResponse:
+        """
+        Cancel order.
+
+        Args:
+            order_id (str): Order ID.
+            **kwargs: Kwargs.
+
+        Returns:
+            Response (dict): Response.
+
+        References:
+            [API Docs](https://docs.bitpin.ir/v1/docs/order/cancel)
+
+        Notes:
+            Rate Limit: 5400 Requests/hour
+        """
+
+        self._delete(self.ORDERS_URL + f"{order_id}/", signed=True, **kwargs)  # type: ignore[return-value]
+        return {
+            "status": "success",
+            "id": order_id
+        }
+
     def create_order_bulk(self, orders: t.BulkOrderList, **kwargs):
         """
         Create multiple orders in bulk.
@@ -768,7 +674,21 @@ class Client(CoreClient):
             Rate Limit: 1800 Requests/hour
         """
 
-        kwargs["json"] = {k: v for k, v in kwargs["json"].items() if v is not None}
+        max_orders = 10
+        if len(orders) > max_orders:
+            msg = "A maximum of 10 orders can be placed at a time."
+            raise ValueError(msg)
+
+        market = orders[0]["symbol"] if orders else None
+        if any(order["symbol"] != market for order in orders):
+            msg = "All orders must be in the same market."
+            raise ValueError(msg)
+
+        kwargs["json"] = {
+            k: str(v)
+            for k, v in locals().items()
+            if v is not None and k not in {"self", "kwargs"}
+        }
         return self._post(self.BULK_ORDER_URL, signed=True, **kwargs)  # type: ignore[return-value]
 
     def cancel_order_bulk(
@@ -795,33 +715,11 @@ class Client(CoreClient):
         kwargs["json"] = {
             k: str(v)
             for k, v in locals().items()
-            if v is not None and k not in ("self", "kwargs")
+            if v is not None and k not in {"self", "kwargs"}
         }
         return self._delete(self.BULK_ORDER_URL, signed=True, **kwargs)  # type: ignore[return-value]
 
-    def cancel_order(  # type: ignore[no-untyped-def, override]
-        self, order_id: str, **kwargs
-    ) -> t.CancelOrderResponse:
-        """
-        Cancel order.
-
-        Args:
-            order_id (str): Order ID.
-            **kwargs: Kwargs.
-
-        Returns:
-            Response (dict): Response.
-
-        References:
-            [API Docs](https://docs.bitpin.ir/v1/docs/order/cancel)
-
-        Notes:
-            Rate Limit: 5400 Requests/hour
-        """
-
-        self._delete(self.ORDERS_URL + f"{order_id}/", signed=True, **kwargs)  # type: ignore[return-value]
-        return {"status": "success", "id": order_id}
-
+    @validate_parameters
     def get_user_trades(  # type: ignore[no-untyped-def, override]
         self,
         base_asset: t.OptionalStr = None,
@@ -852,6 +750,7 @@ class Client(CoreClient):
             Rate Limit: 80 Requests/minute
         """
 
+        kwargs["params"] = kwargs.get("params", {})
         if base_asset and quote_asset:
             kwargs["params"]["symbol"] = f"{base_asset}_{quote_asset}".upper()
         kwargs["params"].update(
@@ -859,13 +758,13 @@ class Client(CoreClient):
                 k: str(v)
                 for k, v in locals().items()
                 if v is not None
-                and k not in ("self", "kwargs", "base_asset", "quote_asset")
+                   and k not in {"self", "kwargs", "base_asset", "quote_asset"}
             }
         )
 
         return self._get(self.ORDERS_URL, signed=True, **kwargs)  # type: ignore[return-value]
 
-    def close_connection(self) -> None:  # type: ignore[override]
+    async def close_connection(self) -> None:  # type: ignore[override]
         """Close connection."""
 
-        self.session.close()  # type: ignore[misc]
+        await self.session.close()  # type: ignore[misc]

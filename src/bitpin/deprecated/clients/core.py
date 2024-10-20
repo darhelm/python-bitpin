@@ -6,7 +6,7 @@ from abc import (
     abstractmethod,
 )
 
-from src.bitpin.deprecated import types as t
+from src.bitpin.deprecated import deprecated_types as t
 
 
 class CoreClient(ABC):  # pylint: disable=too-many-instance-attributes

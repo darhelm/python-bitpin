@@ -13,7 +13,7 @@ import typing as t
 import aiohttp
 import requests
 
-from . import enums
+from . import deprecated_enums
 
 # General Types:
 OptionalStr = t.Optional[str]
@@ -29,7 +29,7 @@ OptionalEventLoop = t.Optional[EventLoop]
 # Client Types:
 OrderTypeBuy = t.Literal["buy"]
 OrderTypeSell = t.Literal["sell"]
-OrderTypes = t.Union[OrderTypeBuy, OrderTypeSell, enums.OrderType]
+OrderTypes = t.Union[OrderTypeBuy, OrderTypeSell, deprecated_enums.OrderType]
 OptionalOrderTypes = t.Optional[OrderTypes]
 
 OrderModeLimit = t.Literal["limit"]
@@ -37,7 +37,11 @@ OrderModeMarket = t.Literal["market"]
 OrderModeOCO = t.Literal["oco"]
 OrderModeStopLimit = t.Literal["stop_limit"]
 OrderModes = t.Union[
-    OrderModeLimit, OrderModeMarket, OrderModeOCO, OrderModeStopLimit, enums.OrderMode
+    OrderModeLimit,
+    OrderModeMarket,
+    OrderModeOCO,
+    OrderModeStopLimit,
+    deprecated_enums.OrderMode,
 ]
 OptionalOrderModes = t.Optional[OrderModes]
 
@@ -55,7 +59,7 @@ RequestMethods = t.Union[
     RequestMethodPost,
     RequestMethodPut,
     RequestMethodDelete,
-    enums.RequestMethod,
+    deprecated_enums.RequestMethod,
 ]
 
 

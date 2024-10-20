@@ -6,14 +6,14 @@ import asyncio
 
 import aiohttp
 
-from src.bitpin.deprecated import enums
-from src.bitpin.deprecated import types as t
-
-from ..._utils import get_loop
-from ...exceptions import (
+from src.bitpin._utils import get_loop
+from src.bitpin.deprecated import deprecated_enums
+from src.bitpin.deprecated import deprecated_types as t
+from src.bitpin.exceptions import (
     APIException,
     RequestException,
 )
+
 from .core import CoreClient
 
 
@@ -200,7 +200,7 @@ class AsyncClient(CoreClient):
         """
 
         return await self._request_api(
-            enums.RequestMethod.GET, path, signed, version, **kwargs
+            deprecated_enums.RequestMethod.GET, path, signed, version, **kwargs
         )
 
     async def _post(  # type: ignore[no-untyped-def, override]
@@ -224,7 +224,7 @@ class AsyncClient(CoreClient):
         """
 
         return await self._request_api(
-            enums.RequestMethod.POST, path, signed, version, **kwargs
+            deprecated_enums.RequestMethod.POST, path, signed, version, **kwargs
         )
 
     async def _delete(  # type: ignore[no-untyped-def, override]
@@ -248,7 +248,7 @@ class AsyncClient(CoreClient):
         """
 
         return await self._request_api(
-            enums.RequestMethod.DELETE, path, signed, version, **kwargs
+            deprecated_enums.RequestMethod.DELETE, path, signed, version, **kwargs
         )
 
     async def _request_api(  # type: ignore[no-untyped-def, override]
@@ -317,7 +317,7 @@ class AsyncClient(CoreClient):
         if not str(response.status).startswith("2"):
             raise APIException(response, response.status, await response.text())
         try:
-            if response.method.lower() == enums.RequestMethod.DELETE:
+            if response.method.lower() == deprecated_enums.RequestMethod.DELETE:
                 return {"status": "success", "id": response.request_info.url.parts[-2]}
             return await response.json()  # type: ignore[no-any-return]
         except ValueError as exc:

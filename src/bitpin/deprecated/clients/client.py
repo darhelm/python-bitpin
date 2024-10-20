@@ -5,13 +5,13 @@ from threading import Thread
 
 import requests
 
-from src.bitpin.deprecated import enums
-from src.bitpin.deprecated import types as t
-
-from ...exceptions import (
+from src.bitpin.deprecated import deprecated_enums
+from src.bitpin.deprecated import deprecated_types as t
+from src.bitpin.exceptions import (
     APIException,
     RequestException,
 )
+
 from .core import CoreClient
 
 
@@ -135,7 +135,7 @@ class Client(CoreClient):
         """
 
         return self._request_api(
-            enums.RequestMethod.GET, path, signed, version, **kwargs
+            deprecated_enums.RequestMethod.GET, path, signed, version, **kwargs
         )
 
     def _post(  # type: ignore[no-untyped-def]
@@ -159,7 +159,7 @@ class Client(CoreClient):
         """
 
         return self._request_api(
-            enums.RequestMethod.POST, path, signed, version, **kwargs
+            deprecated_enums.RequestMethod.POST, path, signed, version, **kwargs
         )
 
     def _delete(  # type: ignore[no-untyped-def]
@@ -183,7 +183,7 @@ class Client(CoreClient):
         """
 
         return self._request_api(
-            enums.RequestMethod.DELETE, path, signed, version, **kwargs
+            deprecated_enums.RequestMethod.DELETE, path, signed, version, **kwargs
         )
 
     def _request_api(  # type: ignore[no-untyped-def]
@@ -250,7 +250,7 @@ class Client(CoreClient):
         """
 
         if not str(response.status_code).startswith("2"):
-            if response.request.method.lower() == enums.RequestMethod.DELETE:  # type: ignore[union-attr]
+            if response.request.method.lower() == deprecated_enums.RequestMethod.DELETE:  # type: ignore[union-attr]
                 return {
                     "status": "success",
                     "id": response.request.path_url.split("/")[-2],
