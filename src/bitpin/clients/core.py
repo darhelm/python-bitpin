@@ -320,12 +320,12 @@ class CoreClient(ABC):  # pylint: disable=too-many-instance-attributes
         raise NotImplementedError
 
     @abstractmethod
-    def get_user_info(self, **kwargs) -> t.DictStrAny:  # type: ignore[no-untyped-def]
+    def get_user_info(self, **kwargs) -> None:  # type: ignore[no-untyped-def]
         """
-        Get user info.
+        Get user info. (Deprecated)
 
         Returns:
-            dict: Response.
+            None.
         """
 
         raise NotImplementedError
