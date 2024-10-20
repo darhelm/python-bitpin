@@ -1,5 +1,5 @@
 """
-# Types.
+# Deprecated Types.
 
 Types for Python Bitpin.
 
