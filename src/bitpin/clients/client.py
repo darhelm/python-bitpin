@@ -315,10 +315,7 @@ class Client(CoreClient):
                 DeprecationWarning,
                 2,
             )
-        kwargs["json"] = {
-            "api_key": self.api_key,
-            "secret_key": self.api_secret
-        }
+        kwargs["json"] = {"api_key": self.api_key, "secret_key": self.api_secret}
         _: t.LoginResponse = self._post(self.LOGIN_URL, **kwargs)  # type: ignore[assignment]
 
         self.refresh_token = _["refresh"]
@@ -343,9 +340,7 @@ class Client(CoreClient):
             [API Docs](https://docs.bitpin.ir/v1/docs/authentication/refresh_token)
         """
 
-        kwargs["json"] = {
-            "refresh": refresh_token or self.refresh_token
-        }
+        kwargs["json"] = {"refresh": refresh_token or self.refresh_token}
         _: t.RefreshTokenResponse = self._post(self.REFRESH_TOKEN_URL, **kwargs)  # type: ignore[assignment]
 
         self.access_token = _["access"]
@@ -556,7 +551,7 @@ class Client(CoreClient):
                 k: str(v)
                 for k, v in locals().items()
                 if v is not None
-                   and k not in {"self", "kwargs", "base_asset", "quote_asset"}
+                and k not in {"self", "kwargs", "base_asset", "quote_asset"}
             }
         )
         return self._get(self.ORDERS_URL, signed=True, **kwargs)  # type: ignore[return-value]
@@ -639,11 +634,12 @@ class Client(CoreClient):
             Rate Limit: 5400 Requests/hour
         """
 
-        self._delete(self.ORDERS_URL + f"{order_id}/", signed=True, **kwargs)  # type: ignore[return-value]
-        return {
-            "status": "success",
-            "id": order_id
-        }
+        try:
+            self._delete(self.ORDERS_URL + f"{order_id}/", signed=True, **kwargs)  # type: ignore[return-value]
+        except APIException as e:
+            raise e from e
+        else:
+            return {"status": "success", "id": order_id}
 
     def create_order_bulk(self, orders: t.BulkOrderList, **kwargs):
         """
@@ -676,12 +672,12 @@ class Client(CoreClient):
 
         max_orders = 10
         if len(orders) > max_orders:
-            msg = "A maximum of 10 orders can be placed at a time."
+            msg = "A maximum of 10 orders can be placed at a time! not creating order!"
             raise ValueError(msg)
 
         market = orders[0]["symbol"] if orders else None
         if any(order["symbol"] != market for order in orders):
-            msg = "All orders must be in the same market."
+            msg = "All orders must be in the same market! not creating order!"
             raise ValueError(msg)
 
         kwargs["json"] = {
@@ -758,13 +754,13 @@ class Client(CoreClient):
                 k: str(v)
                 for k, v in locals().items()
                 if v is not None
-                   and k not in {"self", "kwargs", "base_asset", "quote_asset"}
+                and k not in {"self", "kwargs", "base_asset", "quote_asset"}
             }
         )
 
         return self._get(self.ORDERS_URL, signed=True, **kwargs)  # type: ignore[return-value]
 
-    async def close_connection(self) -> None:  # type: ignore[override]
+    def close_connection(self) -> None:  # type: ignore[override]
         """Close connection."""
 
-        await self.session.close()  # type: ignore[misc]
+        self.session.close()  # type: ignore[misc]

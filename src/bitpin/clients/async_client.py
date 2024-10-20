@@ -697,8 +697,12 @@ class AsyncClient(CoreClient):
             Rate Limit: 5400 Requests/hour
         """
 
-        await self._delete(self.ORDERS_URL + f"{order_id}/", signed=True, **kwargs)  # type: ignore[return-value]
-        return {"status": "success", "id": order_id}
+        try:
+            await self._delete(self.ORDERS_URL + f"{order_id}/", signed=True, **kwargs)  # type: ignore[return-value]
+        except APIException as e:
+            raise e from e
+        else:
+            return {"status": "success", "id": order_id}
 
     async def create_order_bulk(self, orders: t.BulkOrderList, **kwargs):
         """
@@ -731,12 +735,12 @@ class AsyncClient(CoreClient):
 
         max_orders = 10
         if len(orders) > max_orders:
-            msg = "A maximum of 10 orders can be placed at a time."
+            msg = "A maximum of 10 orders can be placed at a time! not creating order!"
             raise ValueError(msg)
 
         market = orders[0]["symbol"] if orders else None
         if any(order["symbol"] != market for order in orders):
-            msg = "All orders must be in the same market."
+            msg = "All orders must be in the same market! not creating order!"
             raise ValueError(msg)
 
         kwargs["json"] = {
