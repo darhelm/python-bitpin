@@ -76,12 +76,8 @@ class CoreClient(ABC):  # pylint: disable=too-many-instance-attributes
 
         self.api_key = api_key or os.environ.get("BITPIN_API_KEY")
         self.api_secret = api_secret or os.environ.get("BITPIN_API_SECRET")
-        self.access_token: t.OptionalStr = access_token or os.environ.get(
-            "BITPIN_ACCESS_TOKEN"
-        )
-        self.refresh_token: t.OptionalStr = refresh_token or os.environ.get(
-            "BITPIN_REFRESH_TOKEN"
-        )
+        self.access_token: t.OptionalStr = access_token or os.environ.get("BITPIN_ACCESS_TOKEN")
+        self.refresh_token: t.OptionalStr = refresh_token or os.environ.get("BITPIN_REFRESH_TOKEN")
 
         self._background_relogin = background_relogin
         self._background_relogin_interval = background_relogin_interval
@@ -113,17 +109,13 @@ class CoreClient(ABC):  # pylint: disable=too-many-instance-attributes
             kwargs["headers"] = headers
 
         if data and method == "get":
-            kwargs["params"] = "&".join(
-                f"{data[0]}={data[1]}" for data in kwargs["data"]
-            )
+            kwargs["params"] = "&".join(f"{data[0]}={data[1]}" for data in kwargs["data"])
             del kwargs["data"]
 
         return kwargs
 
     @staticmethod
-    def _pick(
-        response: t.DictStrAny, key: str, value: t.t.Any, result_key: str = "results"
-    ) -> t.DictStrAny:
+    def _pick(response: t.DictStrAny, key: str, value: t.t.Any, result_key: str = "results") -> t.DictStrAny:
         for _ in response.get(result_key, []):
             if _[key] == value:
                 response[result_key] = _

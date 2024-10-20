@@ -201,9 +201,7 @@ class AsyncClient(CoreClient):
             dict: Response.
         """
 
-        return await self._request_api(
-            enums.RequestMethod.GET, path, signed, version, **kwargs
-        )
+        return await self._request_api(enums.RequestMethod.GET, path, signed, version, **kwargs)
 
     async def _post(  # type: ignore[no-untyped-def, override]
         self,
@@ -225,9 +223,7 @@ class AsyncClient(CoreClient):
             dict: Response.
         """
 
-        return await self._request_api(
-            enums.RequestMethod.POST, path, signed, version, **kwargs
-        )
+        return await self._request_api(enums.RequestMethod.POST, path, signed, version, **kwargs)
 
     async def _delete(  # type: ignore[no-untyped-def, override]
         self,
@@ -249,9 +245,7 @@ class AsyncClient(CoreClient):
             dict: Response.
         """
 
-        return await self._request_api(
-            enums.RequestMethod.DELETE, path, signed, version, **kwargs
-        )
+        return await self._request_api(enums.RequestMethod.DELETE, path, signed, version, **kwargs)
 
     async def _request_api(  # type: ignore[no-untyped-def, override]
         self,
@@ -503,11 +497,7 @@ class AsyncClient(CoreClient):
             Rate limit: 10000/day.
         """
 
-        kwargs["params"] = {
-            k: str(v)
-            for k, v in locals().items()
-            if v is not None and k not in {"self", "kwargs"}
-        }
+        kwargs["params"] = {k: str(v) for k, v in locals().items() if v is not None and k not in {"self", "kwargs"}}
         return await self._get(self.WALLETS_URL, signed=True, **kwargs)
 
     @validate_parameters
@@ -613,8 +603,7 @@ class AsyncClient(CoreClient):
             {
                 k: str(v)
                 for k, v in locals().items()
-                if v is not None
-                and k not in {"self", "kwargs", "base_asset", "quote_asset"}
+                if v is not None and k not in {"self", "kwargs", "base_asset", "quote_asset"}
             }
         )
         return await self._get(self.ORDERS_URL, signed=True, **kwargs)  # type: ignore[return-value]
@@ -743,11 +732,7 @@ class AsyncClient(CoreClient):
             msg = "All orders must be in the same market! not creating order!"
             raise ValueError(msg)
 
-        kwargs["json"] = {
-            k: str(v)
-            for k, v in locals().items()
-            if v is not None and k not in {"self", "kwargs"}
-        }
+        kwargs["json"] = {k: str(v) for k, v in locals().items() if v is not None and k not in {"self", "kwargs"}}
         return await self._post(self.BULK_ORDER_URL, signed=True, **kwargs)  # type: ignore[return-value]
 
     async def cancel_order_bulk(
@@ -771,11 +756,7 @@ class AsyncClient(CoreClient):
             [API Docs](https://docs.bitpin.ir/v1/docs/order/Bulk%20Orders/Cancel_Bulk_Orders)
         """
 
-        kwargs["json"] = {
-            k: str(v)
-            for k, v in locals().items()
-            if v is not None and k not in {"self", "kwargs"}
-        }
+        kwargs["json"] = {k: str(v) for k, v in locals().items() if v is not None and k not in {"self", "kwargs"}}
         return await self._delete(self.BULK_ORDER_URL, signed=True, **kwargs)  # type: ignore[return-value]
 
     @validate_parameters
@@ -816,8 +797,7 @@ class AsyncClient(CoreClient):
             {
                 k: str(v)
                 for k, v in locals().items()
-                if v is not None
-                and k not in {"self", "kwargs", "base_asset", "quote_asset"}
+                if v is not None and k not in {"self", "kwargs", "base_asset", "quote_asset"}
             }
         )
 
