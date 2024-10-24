@@ -40,9 +40,7 @@ OptionalOrderTypesList = t.Optional[list[OrderTypes]]
 OrderStateInitial = t.Literal["initial"]
 OrderStateActive = t.Literal["active"]
 OrderStateClosed = t.Literal["closed"]
-OrderState = t.Union[
-    OrderStateInitial, OrderStateActive, OrderStateClosed, enums.OrderState
-]
+OrderState = t.Union[OrderStateInitial, OrderStateActive, OrderStateClosed, enums.OrderState]
 OptionalOrderState = t.Optional[OrderState]
 OptionalOrderStateList = t.Optional[list[OrderState]]
 
@@ -55,9 +53,7 @@ OrderModeLimit = t.Literal["limit"]
 OrderModeMarket = t.Literal["market"]
 OrderModeOCO = t.Literal["oco"]
 OrderModeStopLimit = t.Literal["stop_limit"]
-OrderModes = t.Union[
-    OrderModeLimit, OrderModeMarket, OrderModeOCO, OrderModeStopLimit, enums.OrderMode
-]
+OrderModes = t.Union[OrderModeLimit, OrderModeMarket, OrderModeOCO, OrderModeStopLimit, enums.OrderMode]
 OptionalOrderModes = t.Optional[OrderModes]
 OptionalOrderModesList = t.Optional[list[OrderModes]]
 

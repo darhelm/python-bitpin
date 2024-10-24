@@ -206,9 +206,7 @@ class AsyncClient(CoreClient):
             dict: Response.
         """
 
-        return await self._request_api(
-            deprecated_enums.RequestMethod.GET, path, signed, version, **kwargs
-        )
+        return await self._request_api(deprecated_enums.RequestMethod.GET, path, signed, version, **kwargs)
 
     async def _post(  # type: ignore[no-untyped-def, override]
         self,
@@ -230,9 +228,7 @@ class AsyncClient(CoreClient):
             dict: Response.
         """
 
-        return await self._request_api(
-            deprecated_enums.RequestMethod.POST, path, signed, version, **kwargs
-        )
+        return await self._request_api(deprecated_enums.RequestMethod.POST, path, signed, version, **kwargs)
 
     async def _delete(  # type: ignore[no-untyped-def, override]
         self,
@@ -254,9 +250,7 @@ class AsyncClient(CoreClient):
             dict: Response.
         """
 
-        return await self._request_api(
-            deprecated_enums.RequestMethod.DELETE, path, signed, version, **kwargs
-        )
+        return await self._request_api(deprecated_enums.RequestMethod.DELETE, path, signed, version, **kwargs)
 
     async def _request_api(  # type: ignore[no-untyped-def, override]
         self,
@@ -328,9 +322,7 @@ class AsyncClient(CoreClient):
                 return {"status": "success", "id": response.request_info.url.parts[-2]}
             return await response.json()  # type: ignore[no-any-return]
         except ValueError as exc:
-            raise RequestException(
-                f"Invalid Response: {await response.text()}"
-            ) from exc
+            raise RequestException(f"Invalid Response: {await response.text()}") from exc
 
     async def _background_relogin_task(self) -> None:  # type: ignore[override]
         """Background relogin task."""
@@ -561,11 +553,7 @@ class AsyncClient(CoreClient):
             [API Docs](https://docs.bitpin.ir/#8a7c2a2af5)
         """
 
-        kwargs["params"] = {
-            k: str(v)
-            for k, v in locals().items()
-            if v is not None and k not in ("self", "kwargs")
-        }
+        kwargs["params"] = {k: str(v) for k, v in locals().items() if v is not None and k not in ("self", "kwargs")}
         return await self._get(self.ORDERS_URL, signed=True, **kwargs)  # type: ignore[return-value]
 
     async def create_order(  # type: ignore[no-untyped-def, override]
@@ -605,11 +593,7 @@ class AsyncClient(CoreClient):
             [API Docs](https://docs.bitpin.ir/#34b353d77b)
         """
 
-        kwargs["json"] = {
-            k: v
-            for k, v in locals().items()
-            if v is not None and k not in ("self", "kwargs")
-        }
+        kwargs["json"] = {k: v for k, v in locals().items() if v is not None and k not in ("self", "kwargs")}
         return await self._post(self.ORDERS_URL, signed=True, **kwargs)  # type: ignore[return-value]
 
     async def cancel_order(  # type: ignore[no-untyped-def, override]
@@ -629,9 +613,7 @@ class AsyncClient(CoreClient):
             [API Docs](https://docs.bitpin.ir/#3fe8d57657)
         """
 
-        return await self._delete(
-            self.ORDERS_URL + f"{order_id}/", signed=True, **kwargs
-        )  # type: ignore[return-value]
+        return await self._delete(self.ORDERS_URL + f"{order_id}/", signed=True, **kwargs)  # type: ignore[return-value]
 
     async def get_user_trades(  # type: ignore[no-untyped-def, override]
         self,
@@ -656,11 +638,7 @@ class AsyncClient(CoreClient):
             [API Docs](https://docs.bitpin.ir/#3fe8d57657)
         """
 
-        kwargs["params"] = {
-            k: str(v)
-            for k, v in locals().items()
-            if v is not None and k not in ("self", "kwargs")
-        }
+        kwargs["params"] = {k: str(v) for k, v in locals().items() if v is not None and k not in ("self", "kwargs")}
         return await self._get(self.USER_TRADES_URL, signed=True, **kwargs)
 
     async def close_connection(self) -> None:  # type: ignore[override]

@@ -141,9 +141,7 @@ class Client(CoreClient):
             dict: Response.
         """
 
-        return self._request_api(
-            deprecated_enums.RequestMethod.GET, path, signed, version, **kwargs
-        )
+        return self._request_api(deprecated_enums.RequestMethod.GET, path, signed, version, **kwargs)
 
     def _post(  # type: ignore[no-untyped-def]
         self,
@@ -165,9 +163,7 @@ class Client(CoreClient):
             dict: Response.
         """
 
-        return self._request_api(
-            deprecated_enums.RequestMethod.POST, path, signed, version, **kwargs
-        )
+        return self._request_api(deprecated_enums.RequestMethod.POST, path, signed, version, **kwargs)
 
     def _delete(  # type: ignore[no-untyped-def]
         self,
@@ -189,9 +185,7 @@ class Client(CoreClient):
             dict: Response.
         """
 
-        return self._request_api(
-            deprecated_enums.RequestMethod.DELETE, path, signed, version, **kwargs
-        )
+        return self._request_api(deprecated_enums.RequestMethod.DELETE, path, signed, version, **kwargs)
 
     def _request_api(  # type: ignore[no-untyped-def]
         self,
@@ -490,11 +484,7 @@ class Client(CoreClient):
             [API Docs](https://docs.bitpin.ir/#8a7c2a2af5)
         """
 
-        kwargs["params"] = {
-            k: str(v)
-            for k, v in locals().items()
-            if v is not None and k not in ("self", "kwargs")
-        }
+        kwargs["params"] = {k: str(v) for k, v in locals().items() if v is not None and k not in ("self", "kwargs")}
         return self._get(self.ORDERS_URL, signed=True, **kwargs)  # type: ignore[return-value]
 
     def create_order(  # type: ignore[no-untyped-def]
@@ -534,11 +524,7 @@ class Client(CoreClient):
             [API Docs](https://docs.bitpin.ir/#34b353d77b)
         """
 
-        kwargs["json"] = {
-            k: str(v)
-            for k, v in locals().items()
-            if v is not None and k not in ("self", "kwargs")
-        }
+        kwargs["json"] = {k: str(v) for k, v in locals().items() if v is not None and k not in ("self", "kwargs")}
         return self._post(self.ORDERS_URL, signed=True, **kwargs)  # type: ignore[return-value]
 
     def cancel_order(self, order_id: str, **kwargs) -> t.CancelOrderResponse:  # type: ignore[no-untyped-def]
@@ -581,11 +567,7 @@ class Client(CoreClient):
             [API Docs](https://docs.bitpin.ir/#3fe8d57657)
         """
 
-        kwargs["params"] = {
-            k: str(v)
-            for k, v in locals().items()
-            if v is not None and k not in ("self", "kwargs")
-        }
+        kwargs["params"] = {k: str(v) for k, v in locals().items() if v is not None and k not in ("self", "kwargs")}
         return self._get(self.USER_TRADES_URL, signed=True, **kwargs)
 
     def close_connection(self) -> None:

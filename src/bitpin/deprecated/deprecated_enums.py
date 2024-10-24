@@ -93,9 +93,7 @@ class Enum(_Enum, metaclass=EnumMeta):
         """
 
         for member in cls:
-            if (
-                isinstance(value, str) and member.value == value.upper()
-            ):  # pragma: no cover
+            if isinstance(value, str) and member.value == value.upper():  # pragma: no cover
                 return member
 
         return super()._missing_(value)  # type: ignore[attribute-error, no-any-return]
