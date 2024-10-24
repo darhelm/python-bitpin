@@ -4,11 +4,13 @@
 Enum classes for the BitPin API.
 """
 
-from typing import Any, List
 from enum import (
     Enum as _Enum,
+)
+from enum import (
     EnumMeta as _EnumMeta,
 )
+from typing import Any
 
 
 class EnumMeta(_EnumMeta):
@@ -19,15 +21,15 @@ class EnumMeta(_EnumMeta):
         if isinstance(value, str):  # pragma: no cover
             value = value.upper()
 
-        return super().__call__(value, *args, **kwargs)  # type: ignore[no-any-return]  # noqa
+        return super().__call__(value, *args, **kwargs)  # type: ignore[no-any-return]
 
     def __contains__(cls, value: Any) -> bool:
         """Contains."""
 
         if isinstance(value, str):
-            return value.upper() in cls._value2member_map_  # type: ignore[attr-defined]  # noqa
+            return value.upper() in cls._value2member_map_  # type: ignore[attr-defined]
 
-        return super().__contains__(value)  # type: ignore[call-arg]  # noqa
+        return super().__contains__(value)  # type: ignore[call-arg]
 
 
 class Enum(_Enum, metaclass=EnumMeta):
@@ -65,8 +67,8 @@ class Enum(_Enum, metaclass=EnumMeta):
         """
 
         if isinstance(other, Enum):
-            return self.value == other.value  # type: ignore[no-any-return]  # noqa
-        return self.value == other  # type: ignore[no-any-return]  # noqa
+            return self.value == other.value  # type: ignore[no-any-return]
+        return self.value == other  # type: ignore[no-any-return]
 
     def __hash__(self) -> int:  # pragma: no cover
         """
@@ -91,10 +93,12 @@ class Enum(_Enum, metaclass=EnumMeta):
         """
 
         for member in cls:
-            if isinstance(value, str) and member.value == value.upper():  # pragma: no cover
+            if (
+                isinstance(value, str) and member.value == value.upper()
+            ):  # pragma: no cover
                 return member
 
-        return super()._missing_(value)  # type: ignore[attribute-error, no-any-return]  # noqa
+        return super()._missing_(value)  # type: ignore[attribute-error, no-any-return]
 
     @classmethod
     def get_by_value(cls, value: Any) -> "Enum":
@@ -148,17 +152,17 @@ class Enum(_Enum, metaclass=EnumMeta):
             return cls.get_by_value(name_or_value)
 
     @classmethod
-    def get_all_values(cls) -> List[Any]:
+    def get_all_values(cls) -> list[Any]:
         """Get all values."""
         return [enum.value for enum in cls]
 
     @classmethod
-    def get_all_names(cls) -> List[str]:
+    def get_all_names(cls) -> list[str]:
         """Get all names."""
         return [enum.name for enum in cls]
 
     @classmethod
-    def to_django_choices(cls) -> List[tuple]:
+    def to_django_choices(cls) -> list[tuple]:
         """Get all names."""
         return [(enum.name, enum.name) for enum in cls]
 
@@ -194,3 +198,10 @@ class RequestMethod(str, Enum):
     POST = "post"
     PUT = "put"
     DELETE = "delete"
+
+
+class OrderBookQuoteAsset(str, Enum):
+    """Order Book Quote Assets"""
+
+    USDT = "USDT"
+    IRT = "IRT"
