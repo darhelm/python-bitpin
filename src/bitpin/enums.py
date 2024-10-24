@@ -1,7 +1,7 @@
 """
 # Enums.
 
-Enum classes for the BitPin API.
+Enum classes for the Bitpin API.
 """
 
 from enum import (
