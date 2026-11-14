@@ -146,9 +146,13 @@ class InnerOrderbookResponse(t.TypedDict):
     quantity: str
 
 
+# Each level is [price, quantity], both as strings.
+OrderbookLevel = list[str]
+
+
 class OrderbookResponse(t.TypedDict):
-    asks: list[InnerOrderbookResponse]
-    bids: list[InnerOrderbookResponse]
+    asks: list[OrderbookLevel]
+    bids: list[OrderbookLevel]
 
 
 class LoginResponse(t.TypedDict):
