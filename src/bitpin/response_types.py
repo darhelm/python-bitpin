@@ -192,6 +192,9 @@ class CreateOrderResponse(t.TypedDict):
     commission: str
 
 
+OrderResponse = CreateOrderResponse
+
+
 OpenOrdersResponse = list[
     t.TypedDict(
         "OpenOrdersResponse",

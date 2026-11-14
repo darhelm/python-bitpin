@@ -31,6 +31,7 @@ class Client(CoreClient):
         get_user_orders: Get use orders.
         create_order: Create order.
         cancel_order: Cancel order.
+        get_order: Get a single order.
         get_user_trades: Get user trades.
         close_connection: Close connection.
 
@@ -608,6 +609,27 @@ class Client(CoreClient):
 
         self._delete(self.ORDERS_URL + f"{order_id}/", signed=True, **kwargs)
         return {"status": "success", "id": order_id}
+
+    def get_order(  # type: ignore[no-untyped-def, override]
+        self, order_id: str, **kwargs
+    ) -> t.OrderResponse:
+        """
+        Get a single order by its ID.
+
+        Useful for polling an order's state and dealed amounts right after placing it.
+
+        Args:
+            order_id (str): Order ID.
+            **kwargs: Kwargs.
+
+        Returns:
+            Response (dict): Response.
+
+        References:
+            [API Docs](https://docs.bitpin.ir/v1/docs/order/get_order_status)
+        """
+
+        return self._get(self.ORDER_URL.format(order_id), signed=True, **kwargs)  # type: ignore[return-value]
 
     def create_order_bulk(self, orders: t.BulkOrderList, **kwargs):
         """
