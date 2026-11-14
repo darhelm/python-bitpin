@@ -244,12 +244,12 @@ class Client(CoreClient):
         """
 
         if not str(response.status_code).startswith("2"):
-            if response.request.method.lower() == enums.RequestMethod.DELETE:  # type: ignore[union-attr]
-                return {
-                    "status": "success",
-                    "id": response.request.path_url.split("/")[-2],
-                }
             raise APIException(response, response.status_code, response.text)
+        if not response.content and response.request.method.lower() == enums.RequestMethod.DELETE:  # type: ignore[union-attr]
+            return {
+                "status": "success",
+                "id": response.request.path_url.split("/")[-2],
+            }
         try:
             return response.json()  # type: ignore[no-any-return]
         except ValueError as exc:
@@ -590,12 +590,8 @@ class Client(CoreClient):
             Rate Limit: 5400 Requests/hour
         """
 
-        try:
-            self._delete(self.ORDERS_URL + f"{order_id}/", signed=True, **kwargs)  # type: ignore[return-value]
-        except APIException as e:
-            raise e from e
-        else:
-            return {"status": "success", "id": order_id}
+        self._delete(self.ORDERS_URL + f"{order_id}/", signed=True, **kwargs)
+        return {"status": "success", "id": order_id}
 
     def create_order_bulk(self, orders: t.BulkOrderList, **kwargs):
         """

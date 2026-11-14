@@ -3,6 +3,7 @@
 # pylint: disable=invalid-overridden-method
 
 import asyncio
+import json
 from warnings import warn
 
 import aiohttp
@@ -310,14 +311,15 @@ class AsyncClient(CoreClient):
             RequestException: Request Exception.
         """
 
+        text = await response.text()
         if not str(response.status).startswith("2"):
-            raise APIException(response, response.status, await response.text())
+            raise APIException(response, response.status, text)
+        if not text and response.method.lower() == enums.RequestMethod.DELETE:
+            return {"status": "success", "id": response.request_info.url.parts[-2]}
         try:
-            if response.method.lower() == enums.RequestMethod.DELETE:
-                return {"status": "success", "id": response.request_info.url.parts[-2]}
-            return await response.json()  # type: ignore[no-any-return]
+            return json.loads(text)  # type: ignore[no-any-return]
         except ValueError as exc:
-            msg = f"Invalid Response: {await response.text()}"
+            msg = f"Invalid Response: {text}"
             raise RequestException(msg) from exc
 
     async def _background_relogin_task(self) -> None:  # type: ignore[override]
@@ -656,12 +658,8 @@ class AsyncClient(CoreClient):
             Rate Limit: 5400 Requests/hour
         """
 
-        try:
-            await self._delete(self.ORDERS_URL + f"{order_id}/", signed=True, **kwargs)  # type: ignore[return-value]
-        except APIException as e:
-            raise e from e
-        else:
-            return {"status": "success", "id": order_id}
+        await self._delete(self.ORDERS_URL + f"{order_id}/", signed=True, **kwargs)
+        return {"status": "success", "id": order_id}
 
     async def create_order_bulk(self, orders: t.BulkOrderList, **kwargs):
         """
