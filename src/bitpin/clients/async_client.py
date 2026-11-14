@@ -323,25 +323,36 @@ class AsyncClient(CoreClient):
             msg = f"Invalid Response: {text}"
             raise RequestException(msg) from exc
 
+    async def _retry_until_success(self, func: t.t.Callable[[], t.t.Awaitable[t.t.Any]]) -> None:
+        """
+        Call `func` until it succeeds, waiting longer after each failure.
+
+        Args:
+            func (Callable): Coroutine function to call.
+        """
+
+        delay: float = 1
+        while True:
+            try:
+                await func()
+                return
+            except Exception:  # pylint: disable=broad-except
+                await asyncio.sleep(delay)
+                delay = min(delay * 2, self.BACKGROUND_RETRY_MAX_DELAY)
+
     async def _background_relogin_task(self) -> None:  # type: ignore[override]
         """Background relogin task."""
 
         while True:
-            try:
-                await self.login()
-                await asyncio.sleep(self._background_relogin_interval)
-            except Exception:  # pylint: disable=broad-except
-                continue
+            await asyncio.sleep(self._background_relogin_interval)
+            await self._retry_until_success(self.login)
 
     async def _background_refresh_token_task(self) -> None:  # type: ignore[override]
         """Background refresh token task."""
 
         while True:
-            try:
-                await self.refresh_access_token()
-                await asyncio.sleep(self._background_refresh_token_interval)
-            except Exception:  # pylint: disable=broad-except
-                continue
+            await asyncio.sleep(self._background_refresh_token_interval)
+            await self._retry_until_success(self.refresh_access_token)
 
     async def _handle_login(self) -> None:  # type: ignore[override]
         """Handle login."""
