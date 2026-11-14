@@ -769,7 +769,7 @@ class AsyncClient(CoreClient):
         params = self._build_params(symbol=symbol, side=side, offset=offset, limit=limit)
         kwargs["params"] = self._merge_params(params, kwargs.get("params"))
 
-        return await self._get(self.ORDERS_URL, signed=True, **kwargs)  # type: ignore[return-value]
+        return await self._get(self.FILLED_ORDERS_URL, signed=True, **kwargs)  # type: ignore[return-value]
 
     async def close_connection(self) -> None:  # type: ignore[override]
         """Close connection."""
