@@ -507,6 +507,10 @@ class AsyncClient(CoreClient):
         Returns:
             Response (dict): Response.
 
+        Notes:
+            The orderbook endpoint answers unauthenticated requests with an error,
+            so the request is signed whenever the client holds an access token.
+
         References:
             [API Docs](https://docs.bitpin.ir/v1/docs/market-data/orderbook)
 
@@ -515,7 +519,8 @@ class AsyncClient(CoreClient):
         """
 
         return await self._get(  # type: ignore[return-value]
-            self.ORDERBOOK_URL.format(symbol, str(type)),
+            self.ORDERBOOK_URL.format(symbol),
+            signed=self.access_token is not None,
             version=self.PUBLIC_API_VERSION_1,
         )
 
