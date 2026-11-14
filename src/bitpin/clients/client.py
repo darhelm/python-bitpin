@@ -269,25 +269,36 @@ class Client(CoreClient):
         if self._background_refresh_token:
             Thread(target=self._background_refresh_token_task, daemon=True).start()
 
+    def _retry_until_success(self, func: t.t.Callable[[], t.t.Any]) -> None:
+        """
+        Call `func` until it succeeds, waiting longer after each failure.
+
+        Args:
+            func (Callable): Function to call.
+        """
+
+        delay: float = 1
+        while True:
+            try:
+                func()
+                return
+            except Exception:  # pylint: disable=broad-except
+                time.sleep(delay)
+                delay = min(delay * 2, self.BACKGROUND_RETRY_MAX_DELAY)
+
     def _background_relogin_task(self) -> None:
         """Background relogin task."""
 
         while True:
-            try:
-                self.login()
-                time.sleep(self._background_relogin_interval)
-            except Exception:  # pylint: disable=broad-except
-                continue
+            time.sleep(self._background_relogin_interval)
+            self._retry_until_success(self.login)
 
     def _background_refresh_token_task(self) -> None:
         """Background refresh token task."""
 
         while True:
-            try:
-                self.refresh_access_token()
-                time.sleep(self._background_refresh_token_interval)
-            except Exception:  # pylint: disable=broad-except
-                continue
+            time.sleep(self._background_refresh_token_interval)
+            self._retry_until_success(self.refresh_access_token)
 
     def login(self, **kwargs) -> t.LoginResponse:  # type: ignore[no-untyped-def, override]
         """

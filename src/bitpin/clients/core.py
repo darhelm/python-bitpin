@@ -22,6 +22,7 @@ class CoreClient(ABC):  # pylint: disable=too-many-instance-attributes
     PUBLIC_API_VERSION_2 = "v2"
 
     REQUEST_TIMEOUT: float = 10
+    BACKGROUND_RETRY_MAX_DELAY: float = 60
 
     LOGIN_URL = "usr/authenticate/"
     REFRESH_TOKEN_URL = "usr/refresh_token/"
