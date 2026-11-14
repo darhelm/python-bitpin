@@ -5,6 +5,10 @@ from abc import (
     ABC,
     abstractmethod,
 )
+from datetime import (
+    date,
+    datetime,
+)
 
 from .. import response_types as t
 
@@ -111,10 +115,62 @@ class CoreClient(ABC):  # pylint: disable=too-many-instance-attributes
             kwargs["headers"] = headers
 
         if data and method == "get":
-            kwargs["params"] = "&".join(f"{data[0]}={data[1]}" for data in kwargs["data"])
+            kwargs["params"] = data
             del kwargs["data"]
 
         return kwargs
+
+    @staticmethod
+    def _build_params(**filters: t.t.Any) -> t.QueryParams:
+        """
+        Build query params for a GET request.
+
+        `None` values are dropped. Lists of `*_in` filters are sent comma separated,
+        other lists are sent as repeated params (e.g. `side=buy&side=sell`).
+        Dates are sent in ISO format.
+
+        Args:
+            **filters: Filters.
+
+        Returns:
+            list: Query params as (key, value) pairs.
+        """
+
+        params: t.QueryParams = []
+        for key, value in filters.items():
+            if value is None:
+                continue
+            if isinstance(value, (list, tuple, set)):
+                if key.endswith("_in"):
+                    params.append((key, ",".join(str(v) for v in value)))
+                else:
+                    params.extend((key, str(v)) for v in value)
+            elif isinstance(value, (date, datetime)):
+                params.append((key, value.isoformat()))
+            elif isinstance(value, bool):
+                params.append((key, str(value).lower()))
+            else:
+                params.append((key, str(value)))
+        return params
+
+    @staticmethod
+    def _merge_params(params: t.QueryParams, extra: t.t.Any) -> t.QueryParams:
+        """
+        Merge the caller's own `params` kwarg into built query params.
+
+        Args:
+            params (list): Built query params.
+            extra (dict | list | None): Params passed by the caller.
+
+        Returns:
+            list: Query params.
+        """
+
+        if not extra:
+            return params
+        if isinstance(extra, dict):
+            return params + list(extra.items())
+        return params + list(extra)
 
     @staticmethod
     def _pick(response: t.DictStrAny, key: str, value: t.t.Any, result_key: str = "results") -> t.DictStrAny:

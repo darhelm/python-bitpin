@@ -76,6 +76,9 @@ RequestMethods = t.Union[
 
 
 # Request Types:
+QueryParams = list[tuple[str, str]]
+
+
 class OrderDict(t.TypedDict):
     symbol: str
     base_amount: float

@@ -490,7 +490,8 @@ class AsyncClient(CoreClient):
             Rate limit: 10000/day.
         """
 
-        kwargs["params"] = {k: str(v) for k, v in locals().items() if v is not None and k not in {"self", "kwargs"}}
+        params = self._build_params(assets=assets, service=service, offset=offset, limit=limit)
+        kwargs["params"] = self._merge_params(params, kwargs.get("params"))
         return await self._get(self.WALLETS_URL, signed=True, **kwargs)
 
     async def get_orderbook(  # type: ignore[no-untyped-def, override]
@@ -579,10 +580,20 @@ class AsyncClient(CoreClient):
             Rate Limit: 80 Requests/minute
         """
 
-        kwargs["params"] = kwargs.get("params", {})
-        kwargs["params"].update(
-            {k: str(v) for k, v in locals().items() if v is not None and k not in {"self", "kwargs"}}
+        params = self._build_params(
+            symbol=symbol,
+            side=side,
+            state=state,
+            type=type,
+            identifier=identifier,
+            start=start,
+            end=end,
+            ids_in=ids_in,
+            identifiers_in=identifiers_in,
+            offset=offset,
+            limit=limit,
         )
+        kwargs["params"] = self._merge_params(params, kwargs.get("params"))
         return await self._get(self.ORDERS_URL, signed=True, **kwargs)  # type: ignore[return-value]
 
     async def create_order(  # type: ignore[no-untyped-def, override]
@@ -755,10 +766,8 @@ class AsyncClient(CoreClient):
             Rate Limit: 80 Requests/minute
         """
 
-        kwargs["params"] = kwargs.get("params", {})
-        kwargs["params"].update(
-            {k: str(v) for k, v in locals().items() if v is not None and k not in {"self", "kwargs"}}
-        )
+        params = self._build_params(symbol=symbol, side=side, offset=offset, limit=limit)
+        kwargs["params"] = self._merge_params(params, kwargs.get("params"))
 
         return await self._get(self.ORDERS_URL, signed=True, **kwargs)  # type: ignore[return-value]
 
