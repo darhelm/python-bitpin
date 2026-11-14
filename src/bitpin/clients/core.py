@@ -32,6 +32,7 @@ class CoreClient(ABC):  # pylint: disable=too-many-instance-attributes
     ORDERBOOK_URL = "mth/orderbook/{}/"
     RECENT_TRADES_URL = "mth/matches/{}/"
     ORDERS_URL = "odr/orders/"
+    ORDER_URL = "odr/orders/{}/"
     FILLED_ORDERS_URL = "odr/fills/"
     USER_TRADES_URL = "odr/matches/?type={}"
     BULK_ORDER_URL = "odr/orders/bulk/"
@@ -534,6 +535,21 @@ class CoreClient(ABC):  # pylint: disable=too-many-instance-attributes
             stop_price: t.OptionalFloat = None
             oco_target_price: t.OptionalFloat = None
             identifier: t.OptionalStr = None
+            **kwargs: Kwargs.
+
+        Returns:
+            Response (dict): Response.
+        """
+
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_order(self, order_id: str, **kwargs) -> t.OrderResponse:  # type: ignore[no-untyped-def]
+        """
+        Get a single order by its ID.
+
+        Args:
+            order_id (str): Order ID.
             **kwargs: Kwargs.
 
         Returns:

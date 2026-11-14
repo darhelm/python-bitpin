@@ -34,6 +34,7 @@ class AsyncClient(CoreClient):
         get_user_orders: Get user orders.
         create_order: Create order.
         cancel_order: Cancel order.
+        get_order: Get a single order.
         create_order_bulk: Create Bulk Order.
         cancel_order_bulk: Cancel Bulk Order.
         get_user_trades: Get user trades.
@@ -671,6 +672,27 @@ class AsyncClient(CoreClient):
 
         await self._delete(self.ORDERS_URL + f"{order_id}/", signed=True, **kwargs)
         return {"status": "success", "id": order_id}
+
+    async def get_order(  # type: ignore[no-untyped-def, override]
+        self, order_id: str, **kwargs
+    ) -> t.OrderResponse:
+        """
+        Get a single order by its ID.
+
+        Useful for polling an order's state and dealed amounts right after placing it.
+
+        Args:
+            order_id (str): Order ID.
+            **kwargs: Kwargs.
+
+        Returns:
+            Response (dict): Response.
+
+        References:
+            [API Docs](https://docs.bitpin.ir/v1/docs/order/get_order_status)
+        """
+
+        return await self._get(self.ORDER_URL.format(order_id), signed=True, **kwargs)  # type: ignore[return-value]
 
     async def create_order_bulk(self, orders: t.BulkOrderList, **kwargs):
         """
