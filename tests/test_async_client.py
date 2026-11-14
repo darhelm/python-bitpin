@@ -60,6 +60,11 @@ def build_app(recorder: Recorder) -> web.Application:
     app.router.add_get("/api/v1/mth/orderbook/{symbol}/", orderbook)
     app.router.add_get("/api/v1/odr/orders/", orders)
     app.router.add_get("/api/v1/odr/fills/", fills)
+
+    async def markets(request: web.Request) -> web.Response:
+        return web.Response(status=503, text="<h1>Server Error (503)</h1>")
+
+    app.router.add_get("/api/v1/mkt/markets/", markets)
     app.router.add_route("*", "/api/v1/odr/orders/bulk/", bulk)
     app.router.add_route("*", "/api/v1/odr/orders/{order_id}/", order)
     return app
@@ -145,3 +150,10 @@ async def test_bulk_bodies_are_json(client, server):
 async def test_bulk_cancel_needs_ids(client):
     with pytest.raises(ValueError):
         await client.cancel_order_bulk()
+
+
+async def test_non_json_error_keeps_body(client):
+    with pytest.raises(APIException) as info:
+        await client.get_markets_info()
+    assert "Server Error" in str(info.value)
+    assert "bound method" not in str(info.value)

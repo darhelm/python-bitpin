@@ -38,7 +38,7 @@ class APIException(Exception):
         try:
             json_res = json.loads(text)
         except ValueError:
-            self.message = f"Invalid JSON error message from Bitpin: {response.text}"
+            self.message = f"Invalid JSON error message from Bitpin: {text[:200]}"
             self.result = None
         else:
             self.message = json_res.get("detail", "Unknown error")
