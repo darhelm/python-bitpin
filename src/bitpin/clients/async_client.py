@@ -711,7 +711,7 @@ class AsyncClient(CoreClient):
             msg = "All orders must be in the same market! not creating order!"
             raise ValueError(msg)
 
-        kwargs["json"] = {k: str(v) for k, v in locals().items() if v is not None and k not in {"self", "kwargs"}}
+        kwargs["json"] = [{k: v for k, v in order.items() if v is not None} for order in orders]
         return await self._post(self.BULK_ORDER_URL, signed=True, **kwargs)  # type: ignore[return-value]
 
     async def cancel_order_bulk(
@@ -735,7 +735,16 @@ class AsyncClient(CoreClient):
             [API Docs](https://docs.bitpin.ir/v1/docs/order/Bulk%20Orders/Cancel_Bulk_Orders)
         """
 
-        kwargs["json"] = {k: str(v) for k, v in locals().items() if v is not None and k not in {"self", "kwargs"}}
+        if not ids and not identifiers:
+            msg = "Either ids or identifiers must be given! not canceling orders!"
+            raise ValueError(msg)
+
+        body: t.DictStrAny = {}
+        if ids:
+            body["ids"] = [str(i) for i in ids]
+        if identifiers:
+            body["identifiers"] = list(identifiers)
+        kwargs["json"] = body
         return await self._delete(self.BULK_ORDER_URL, signed=True, **kwargs)  # type: ignore[return-value]
 
     async def get_user_trades(  # type: ignore[no-untyped-def, override]
